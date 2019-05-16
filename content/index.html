@@ -1,0 +1,213 @@
+<html lang="en-US">
+<head>
+	<meta charset="utf-8">
+	<title>Solidity Metrics</title>
+    <script src="js/Chart.bundle.min.js"></script>
+    <script src="js/chartjs-plugin-colorschemes.min.js"></script>
+
+    <script src="js/showdown.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/github-markdown.css">
+
+    
+    <script src="sampleData.js"></script>
+</head>
+<body>
+    <div class=content id="preview"></div>
+    <script src="report.js"></script>
+    <script>
+        window.addEventListener('message', event => {
+            const message = event.data;
+            console.log(message)
+            switch (message.command) {
+                case 'renderReport':
+                    renderReport(message.value);
+                    break;
+                }
+            }, false);
+        function renderReport(args){
+            var sd = new showdown.Converter();
+
+            preview = document.getElementById('preview');
+            preview.innerHTML = sd.makeHtml(args.markdownTemplate);
+            renderGraphs(args.jsonData, window.chartColors)
+        }
+        function renderGraphs(inputDataJson, presets){
+            var presets = window.chartColors;
+
+            let risks = getRisks(inputDataJson)
+
+            var chart = new Chart('chart-risk-summary', {
+                type: 'radar',
+                data: {
+                    labels: risks.keys,
+                    datasets: [{
+                        data: risks.totals,
+                        label: 'overall',
+                        fill: 0
+                    }, {
+                        data: risks.avg,
+                        hidden: false,
+                        label: 'perSourceUnit',
+                        fill: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: true,
+                    spanGaps: false,
+                    scale: {
+                        ticks: {
+                            beginAtZero: true,
+                            max: 7
+                        }
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.000001
+                        }
+                    },
+                    plugins: {
+                        filler: {
+                            propagate: false
+                        },
+                        'samples-filler-analyser': {
+                            target: 'chart-analyser'
+                        },
+                        colorschemes: {
+                            scheme: 'tableau.Tableau20'
+                        }
+                    }
+                }
+            });
+            
+            let sloc = getSloc(inputDataJson)
+            var myDoughnutChart = new Chart('chart-nsloc-total', {
+                type: 'pie',
+                data: {
+                    labels: sloc.keys,
+                    datasets: [{
+                        label:"normalized sloc",
+                        data: sloc.nsloc
+                    },{
+                        label:"sloc",
+                        data: sloc.sloc
+                    }],
+                },
+                options: {
+                    plugins: {
+                        colorschemes: {
+                            scheme: 'tableau.Tableau20'
+                        }
+                    }
+                }
+            });
+
+            var numData = getNum(inputDataJson)
+            console.log(numData)
+            var myBarChart = new Chart('chart-num-bar', {
+                    type: 'bar',
+                    data: {
+                    labels: numData.keys,
+                        datasets: [{
+                            label:"totals",
+                            data: numData.totals
+                        },{
+                            label:"perSourceUnit",
+                            data: numData.avg
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Numbers'
+                        },
+                        scales: {
+                            yAxes: [{
+                                type: 'logarithmic',
+                            }]
+                        },
+                    }
+                });
+            }
+    </script>
+    <script>
+var sampleMarkdown = `
+[<img width="200" alt="get in touch with Consensys Diligence" src="https://user-images.githubusercontent.com/2865694/56826101-91dcf380-685b-11e9-937c-af49c2510aa0.png">](https://diligence.consensys.net)<br/>
+<sup>
+[[  🌐  ](https://diligence.consensys.net)  [  📩  ](mailto:diligence@consensys.net)  [  🔥  ](https://consensys.github.io/diligence/)]
+</sup><br/><br/>
+
+
+
+# Solidity Metrics for XXX
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis feugiat odio tempor suscipit. Suspendisse pretium aliquam nisl eget imperdiet. Praesent aliquet consequat semper. Aliquam massa nibh, blandit at ultricies sit amet, ornare cursus est. Phasellus suscipit, nisl vitae porttitor porttitor, mauris enim vulputate diam, venenatis suscipit velit mi a erat. 
+
+## Scope
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis feugiat odio tempor suscipit. Suspendisse pretium aliquam nisl eget imperdiet. Praesent aliquet consequat semper. Aliquam massa nibh, blandit at ultricies sit amet, ornare cursus est. Phasellus suscipit, nisl vitae porttitor porttitor, mauris enim vulputate diam, venenatis suscipit velit mi a erat. 
+
+This section lists files that are in scope for the metrics report. 
+
+- **Project:** \`xxx\`
+- **Included Files:** \`xxxx\`
+- **Excluded Paths:** \`xxxx\`
+- **File Limit:** \`xxx\`
+
+### Source Units in Scope
+
+Source Units Analyzed: **xxxx** 
+
+\`\`\`json
+    
+\`\`\`
+
+
+#### Out of Scope - Duplicate Source Units
+
+\`\`\`json
+    
+\`\`\`
+
+## Report
+
+The analysis finished with *xxx* errors and *xxx* duplicate files.
+
+<div class="wrapper" style="max-width: 512px; margin: auto">
+			<canvas id="chart-risk-summary"></canvas>
+</div>
+
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <canvas id="chart-nsloc-total"></canvas>
+</div>
+
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <canvas id="chart-num-bar"></canvas>
+</div>
+
+
+\`\`\`json
+   
+\`\`\`
+
+### Total
+
+\`\`\`json
+  
+\`\`\`
+
+#### Source Units
+
+\`\`\`json
+  
+\`\`\`
+    `
+    renderReport(inputDataJsonSample)
+    </script>
+
+
+</body>
+</html>
