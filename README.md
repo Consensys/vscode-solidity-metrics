@@ -8,6 +8,9 @@
 
 Generate Solidity Source Code Metrics, Complexity and Risk profile reports for your project.
 
+![vscode-solidity-metrics3](https://user-images.githubusercontent.com/2865694/57970224-1e706280-797f-11e9-9136-74e51bd7be00.gif)
+
+
 
 ## Credits
 
