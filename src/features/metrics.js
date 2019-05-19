@@ -120,7 +120,12 @@ class SolidityMetricsContainer {
         this.metrics = new Array();
         this.errors = new Array();
 
+        this.truffleProjectLocations = new Array();
         
+    }
+
+    addTruffleProjectLocation(truffleJsPath){
+        this.truffleProjectLocations = Array.from(new Set([truffleJsPath, ...this.truffleProjectLocations]))
     }
 
     analyze(inputFileGlobs){
@@ -176,8 +181,8 @@ class SolidityMetricsContainer {
 
     generateReportMarkdown(){
 
-
-        let mdreport = `
+        let totals = this.totals();
+        let mdreport_head = `
 [<img width="200" alt="get in touch with Consensys Diligence" src="https://user-images.githubusercontent.com/2865694/56826101-91dcf380-685b-11e9-937c-af49c2510aa0.png">](https://diligence.consensys.net)<br/>
 <sup>
 [[  🌐  ](https://diligence.consensys.net)  [  📩  ](mailto:diligence@consensys.net)  [  🔥  ](https://consensys.github.io/diligence/)]
@@ -204,43 +209,96 @@ This section lists files that are in scope for the metrics report.
 
 Source Units Analyzed: **${this.seenFiles.length}** 
 
-\`\`\`json
-    ${JSON.stringify(this.seenFiles.map(f => f.replace(this.basePath, "")),null,2)}
-\`\`\`
+
+* ${this.seenFiles.map(f => f.replace(this.basePath, "")).join("\n* ")}
+
 
 
 #### Out of Scope - Duplicate Source Units
 
-\`\`\`json
-    ${JSON.stringify(this.seenDuplicates.map(f => f.replace(this.basePath, "")),null,2)}
-\`\`\`
+* ${this.seenDuplicates.length ? this.seenDuplicates.map(f => f.replace(this.basePath, "")).join("\n* ") : "None"}
+
 
 ## Report
+
+### Overview
+
+The analysis finished with **${this.errors.length}** errors and **${this.seenDuplicates.length}** duplicate files.
+
+${this.errors.length ? "**Errors:**\n\n" + this.errors.join("\n* ") : ""}
+
+${this.truffleProjectLocations.length ? "**Truffle Project Locations Observed:**\n* " + this.truffleProjectLocations.map(f => "./"+f.replace(this.basePath, "")).join("\n* ") : ""}
+
+#### Risk
 
 <div class="wrapper" style="max-width: 512px; margin: auto">
 			<canvas id="chart-risk-summary"></canvas>
 </div>
 
+#### Source Lines (normalized vs. real)
+
 <div class="wrapper" style="max-width: 512px; margin: auto">
     <canvas id="chart-nsloc-total"></canvas>
 </div>
+
+#### Inline Documentation
+
+- **Comment-to-Source Ratio:** On average there are ${Math.round(totals.totals.sloc.source/totals.totals.sloc.comment *100)/100} Source-Code lines for every comment in the Code-Base (lower=better).
+- **ToDo's:** ${totals.totals.sloc.todo}  
+
+#### Components
+
+- **Contracts:** ${totals.totals.num.contracts}  
+- **Libraries:** ${totals.totals.num.libraries}  
+- **Interfaces:** ${totals.totals.num.interfaces}  
+
+#### Exposed Functions
+
+This section lists functions that are explicitly declared public or payable. Please note that getter methods for public stateVars are not included.  
+
+- **🌐Public:**  ${totals.totals.num.functionsPublic}  
+- **💰Payable:** ${totals.totals.num.functionsPayable}  
+
+#### StateVariables
+
+- **Total:** ${totals.totals.num.stateVars}  
+- **🌐Public:** ${totals.totals.num.stateVarsPublic}
+
+#### Capabilities
+
+- **Solidity Versions:** ${totals.totals.capabilities.solidityVersions.join(", ")}
+- **Experimental Pragmas:** ${totals.totals.capabilities.experimental.join(", ")}
+- **Can Receive Funds:** ${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}
+- **Assembly:** ${totals.totals.capabilities.assembly ? "yes" : "no"} (Assembly Blocks: ${totals.totals.num.assemblyBlocks})
+
+#### Inheritance Graph
+
+- **Cyclomatic Complexity:** TBD
+- **Other Graph Metrics:** TBD
+- **Number of deployable (most derived) Contracts:** TBD
+
+//SURYA FANCY GRAPH HERE
+
+#### Call-Graph
+
+- **Cyclomatic Complexity:** TBD
+- **Other Graph Metrics:** TBD
+
+//SURYA FANCY GRAPH HERE
+
+#### Totals
 
 <div class="wrapper" style="max-width: 512px; margin: auto">
     <canvas id="chart-num-bar"></canvas>
 </div>
 
-The analysis finished with *${this.errors.length}* errors and *${this.seenDuplicates.length}* duplicate files.
-
 \`\`\`json
-    ${JSON.stringify(this.errors,null,2)}
+    ${JSON.stringify(totals,null,2)}
 \`\`\`
 
-### Total
+`; 
 
-\`\`\`json
-    ${JSON.stringify(this.totals(),null,2)}
-\`\`\`
-
+        let mdreport_tail = `
 #### Source Units
 
 \`\`\`json
@@ -248,7 +306,7 @@ The analysis finished with *${this.errors.length}* errors and *${this.seenDuplic
 \`\`\`
         `;
 
-        return mdreport;
+        return mdreport_head+mdreport_tail;
     }
 }
 
@@ -284,7 +342,9 @@ class Metric {
             imports:0,
             functionsPublic:0,
             functionsPayable:0,
-            assemblyBlocks:0
+            assemblyBlocks:0,
+            stateVars:0,
+            stateVarsPublic:0
         }
         this.capabilities = {
             solidityVersions: new Array(),
@@ -309,6 +369,8 @@ class Metric {
         this.num.functionsPublic = (this.ast["FunctionDefinition:Public"] || 0) + (this.ast["FunctionDefinition:External"] || 0)
         this.num.functionsPayable = this.ast["FunctionDefinition:Payable"] || 0
         this.num.assemblyBlocks = this.ast["InlineAssemblyStatement"] || 0
+        this.num.stateVars = this.ast["StateVariableDeclaration"] || 0
+        this.num.stateVarsPublic = this.ast["StateVariableDeclaration:Public"] || 0
 
 
         // generate human readable ratings
@@ -411,11 +473,23 @@ class SolidityFileMetrics {
                 },
                 StateVariableDeclaration(node){
                     //NOP - this already counts the VariableDeclaration subelements.
+
                 },
                 VariableDeclaration(node){
-                    if(node.storageLocation){
-                        that.metrics.ast["VariableDeclaration:"+capitalFirst(node.storageLocation)] = ++that.metrics.ast["VariableDeclaration:"+capitalFirst(node.storageLocation)]|| 1;
+                    let typeName = "VariableDeclaration"
+                    if(node.isStateVar){
+                        typeName = "StateVariableDeclaration"
+                        that.metrics.ast[typeName+":"+capitalFirst(node.visibility)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.visibility)]|| 1;
                     }
+
+                    if(node.storageLocation){
+                        that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)]|| 1;
+                    }
+                    
+                    if(node.isDeclaredConst)
+                        that.metrics.ast[typeName+":Const"] = ++that.metrics.ast[typeName+":Const"]|| 1;
+                    if(node.isIndexed)
+                        that.metrics.ast[typeName+":Indexed"] = ++that.metrics.ast[typeName+":Indexed"]|| 1;
                 },
                 UserDefinedTypeName(node){
                     that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)] = ++that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)]|| 1;

@@ -33,7 +33,6 @@ class AnonymouseDocument {
 }
 
 function previewHtml(webView, document, markdownTemplate, jsonData){
-    // take document or string; default active editor if
 
     console.log({
         command:"renderReport", 
@@ -77,7 +76,6 @@ function onActivate(context) {
             metrics.inputFileGlob = document.fileName.replace(metrics.basePath,"")
 
             metrics.analyze(document.fileName)
-            //previewMarkdown(document, metrics.generateReportMarkdown())
             previewHtml(webView, document, metrics.generateReportMarkdown(), metrics.totals())
             
         })
@@ -100,7 +98,13 @@ function onActivate(context) {
                     })
                 })
 
-            //previewMarkdown(null, metrics.generateReportMarkdown())
+            await vscode.workspace.findFiles("**/truffle*.js", metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
+                .then(uris => {
+                    uris.forEach(uri => {
+                        metrics.addTruffleProjectLocation(uri.path)
+                    })
+                })
+
             previewHtml(webView, new AnonymouseDocument("workspace","workspace"), metrics.generateReportMarkdown(), metrics.totals())
             
         })
@@ -115,7 +119,7 @@ function onActivate(context) {
                 inputFileGlob: undefined,
                 inputFileGlobLimit: config.file.limit
             });
-            metrics.inputFileGlob = "{" + selectedFiles.map(x => x.path.endsWith(".sol") ? x.path.replace(metrics.basePath,"") : x.path.replace(metrics.basePath,"") + "/**/*.sol").join(",")  + "}",
+            metrics.inputFileGlob = "{" + selectedFiles.map(x => x.path.endsWith(".sol") ? x.path.replace(metrics.basePath,"") : x.path.replace(metrics.basePath,"") + "/**/*.sol").join(",")  + "}"
 
             //todo fixit!
             await vscode.workspace.findFiles(metrics.inputFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
@@ -125,7 +129,15 @@ function onActivate(context) {
                     })
                 })
 
-            //previewMarkdown(null, metrics.generateReportMarkdown())
+            let truffleFileGlob = "{" + selectedFiles.map(x => x.path.endsWith(".sol") ? x.path.replace(metrics.basePath,"") : x.path.replace(metrics.basePath,"") + "/**/truffle*.js").join(",")  + "}"
+
+            await vscode.workspace.findFiles(truffleFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
+                .then(uris => {
+                    uris.forEach(uri => {
+                        metrics.addTruffleProjectLocation(uri.path)
+                    })
+                })
+
             previewHtml(webView, new AnonymouseDocument("fromContextMenu","fromContextMenu"), metrics.generateReportMarkdown(), metrics.totals())
 
         })
