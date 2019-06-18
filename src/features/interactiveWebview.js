@@ -16,9 +16,72 @@ const fs = require("fs");
 
 /** classdecs */
 
-class InteractiveWebviewGenerator {
+class ReportGenerator {
+    constructor(context, content_folder) {
+        this.context = context
+        this.timeout = null;
+        this.content_folder = content_folder;
+    }
+
+    async getPreviewTemplate(context, templateName) {
+        let previewPath = context.asAbsolutePath(path.join(this.content_folder, templateName));
+
+        return new Promise((resolve, reject) => {
+            fs.readFile(previewPath, "utf8", function (err, data) {
+                if (err) reject(err);
+                else resolve(data);
+            });
+        });
+    }
+
+    async getPreviewHtml() {
+        let templateHtml = await this.getPreviewTemplate(this.context, "index.html");
+
+        templateHtml = templateHtml.replace(/<script .*?src="(.+)">/g, (scriptTag, srcPath) => {
+            let resource = vscode.Uri.file(
+                path.join(this.context.extensionPath, this.content_folder, srcPath))
+                .with({ scheme: "vscode-resource" });
+            return `<script src="${resource}">`;
+        })
+        return templateHtml;
+    }
+
+}
+
+
+class FileGenerator extends ReportGenerator {
+    constructor(context, content_folder) {
+        super(context, content_folder)
+        this.reportFiles = new Map();
+    }
+
+
+    async createReportFile() {
+        // let fileName = `${path.basename(doc.fileName).replace('.', '_')}-metrics.html`;
+        // fs.writeFile(fileName, this.getPreviewHtml())
+
+        let content = this.getPreviewHtml()
+        let report = await vscode.openTextDocument({content, language: "html"});
+    }
+
+    async updateFileContent(previewPanel, doc) {
+        return new Promise(async (resolve, reject) => {
+            if (!previewPanel.getPanel().webview.html) {
+                previewPanel.getPanel().webview.html = "Please wait...";
+            }
+            previewPanel.setNeedsRebuild(false);
+            previewPanel.getPanel().webview.html = await this.getPreviewHtml(previewPanel, doc);
+            return resolve(previewPanel)
+        });
+    }
+
+}
+
+
+class InteractiveWebviewGenerator extends ReportGenerator  {
 
     constructor(context, content_folder) {
+        super(context, content_folder)
         this.context = context
         this.webviewPanels = new Map();
         this.timeout = null;
@@ -102,7 +165,6 @@ class InteractiveWebviewGenerator {
         });
 
         webViewPanel.iconPath = vscode.Uri.file(this.context.asAbsolutePath("content/icon.png"));
-
         return new PreviewPanel(this, doc.uri, webViewPanel);
     }
 
@@ -117,28 +179,6 @@ class InteractiveWebviewGenerator {
         });
     }
 
-    async getPreviewTemplate(context, templateName){
-        let previewPath = context.asAbsolutePath(path.join(this.content_folder, templateName));
-    
-        return new Promise((resolve, reject) => {
-            fs.readFile(previewPath, "utf8", function (err, data) {
-                if (err) reject(err);
-                else resolve(data);
-            });
-        });
-    }
-
-    async getPreviewHtml(previewPanel, doc){
-        let templateHtml = await this.getPreviewTemplate(this.context, "index.html");
-
-        templateHtml = templateHtml.replace(/<script .*?src="(.+)">/g, (scriptTag, srcPath) => {
-            let resource=vscode.Uri.file(
-                path.join(this.context.extensionPath, this.content_folder, srcPath))
-                    .with({scheme: "vscode-resource"});
-            return `<script src="${resource}">`;
-        })
-        return templateHtml;
-    }
 }
 
 class PreviewPanel {
@@ -185,5 +225,6 @@ class PreviewPanel {
 
 
 module.exports = {
-    InteractiveWebviewGenerator:InteractiveWebviewGenerator
+    InteractiveWebviewGenerator, 
+    FileGenerator
 }

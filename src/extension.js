@@ -7,7 +7,7 @@
 
 /** imports */
 const vscode = require("vscode")
-const {InteractiveWebviewGenerator} = require('./features/interactiveWebview.js')
+const { InteractiveWebviewGenerator, FileGenerator } = require('./features/interactiveWebview.js')
 const SOLIDITY = 'solidity'
 
 const {SolidityMetricsContainer} = require('./features/metrics')
@@ -77,7 +77,9 @@ function onActivate(context) {
 
             metrics.analyze(document.fileName)
             previewHtml(webView, document, metrics.generateReportMarkdown(), metrics.totals())
-            
+            saveHtmlToFile(document, metrics.generateReportMarkdown(), metrics.totals())
+            let fg = new FileGenerator(context, "content");
+            fg.createReportFile().then((reportDocument) => console.log);
         })
     )
 

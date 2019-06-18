@@ -37,11 +37,13 @@
                 "command": "solidity-metrics.workspace.report",
                 "title": "Report metrics for workspace",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.activeFile.report",
                 "title": "Report metrics for current file",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.contextMenu.report",
                 "title": "Solidity Metrics",
                 "category": "Solidity Metrics"
