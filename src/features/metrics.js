@@ -200,10 +200,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis feugiat 
 
 This section lists files that are in scope for the metrics report. 
 
-- **Project:** \`${this.name}\`
+- **Project:** ${this.name}
 - **Included Files:** \`${this.inputFileGlob}\`
 - **Excluded Paths:** \`${this.inputFileGlobExclusions}\`
-- **File Limit:** \`${this.inputFileGlobLimit}\`
+- **File Limit:** ${this.inputFileGlobLimit}
 
 ### Source Units in Scope
 
@@ -292,8 +292,8 @@ This section lists functions that are explicitly declared public or payable. Ple
     <canvas id="chart-num-bar"></canvas>
 </div>
 
-\`\`\`json
-    ${JSON.stringify(totals,null,2)}
+\`\`\`
+    ${/* JSON.stringify(totals,null,2) */''}
 \`\`\`
 
 `; 
@@ -301,7 +301,7 @@ This section lists functions that are explicitly declared public or payable. Ple
         let mdreport_tail = `
 #### Source Units
 
-\`\`\`json
+\`\`\`
     ${JSON.stringify(this.metrics,null,2)}
 \`\`\`
         `;
@@ -521,6 +521,6 @@ class SolidityFileMetrics {
 }
 
 module.exports = {
-    SolidityMetricsContainer:SolidityMetricsContainer
+    SolidityMetricsContainer
 }
 

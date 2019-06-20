@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+const SOLIDITY = 'solidity'
+const showdown = require('showdown')
+
+const { SolidityMetricsContainer, ReportGenerator } = require('../src/index')
+const yargs = require('yargs')
+debugger;
+yargs
+  .usage('$0 <cmd> [args]')
+  .command('report <project_name> <files..>', 'report metrics.', (yargs) => {
+    yargs
+      .option('e', {
+        alias: 'exclude',
+        demandOption: false,
+        default: '',
+        describe: 'files to exclude from analysis',
+        type: 'string'
+      })
+      .positional('project_name', {
+        describe: 'name of the project to include in the report',
+        type: 'string'
+      })
+      .positional('files', {
+        report: 'files to analyze',
+        type: 'string'
+      })
+  }, async (argv) => {
+      
+      // console.log(html)
+      await generateHtmlReport(argv.project_name, argv.files, { exclude: argv.e })
+  })
+  .help()
+  .argv
+
+async function generateHtmlReport(name, files, options) {
+  
+  let metrics = new SolidityMetricsContainer(name, {
+    basePath: process.cwd() + "/",
+    inputFileGlobExclusions: "", //options.exclude, // todo: handle exclusions
+    inputFileGlob: "",
+    inputFileGlobLimit: 2000
+  });
+
+  files.forEach(file => metrics.analyze(file));
+  let markdownReport = metrics.generateReportMarkdown();
+  let sd = new showdown.Converter();
+  let htmlReport = sd.makeHtml(markdownReport)
+
+  let reportGenerator = new ReportGenerator('', 'content');
+
+  let html = await reportGenerator.getPreviewHtml(htmlReport, metrics.totals())
+  console.log(html)
+}

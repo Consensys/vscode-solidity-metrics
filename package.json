@@ -12,69 +12,22 @@
     ],
     "publisher": "tintinweb",
     "icon": "images/icon.png",
-    "engines": {
-        "vscode": "^1.20.2"
-    },
     "categories": [
         "Programming Languages"
     ],
     "bugs": {
-        "url": "https://github.com/ConsenSys/vscode-solidity-metrics/issues"
+        "url": "https://github.com/ConsenSys/solidity-metrics/issues"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/ConsenSys/vscode-solidity-metrics"
+        "url": "https://github.com/ConsenSys/solidity-metrics"
     },
-    "main": "./src/extension.js",
-    "activationEvents": [
-        "onCommand:solidity-metrics.workspace.report",
-        "onCommand:solidity-metrics.contextMenu.report",
-        "onCommand:solidity-metrics.activeFile.report"
-    ],
-    "contributes": {
-        "commands": [
-            {
-                "command": "solidity-metrics.workspace.report",
-                "title": "Report metrics for workspace",
-                "category": "Solidity Metrics"
-            },
-            {
-                "command": "solidity-metrics.activeFile.report",
-                "title": "Report metrics for current file",
-                "category": "Solidity Metrics"
-            },
-            {
-                "command": "solidity-metrics.contextMenu.report",
-                "title": "Solidity Metrics",
-                "category": "Solidity Metrics"
-            }
-        ],
-        "configuration": {
-            "type": "object",
-            "title": "Solidity Metrics",
-            "properties": {
-                "solidity-metrics.file.exclusions.glob": {
-                    "type": "string",
-                    "default": "{**/node_modules,**/mock*,**/test*,**/migrations,**/Migrations.sol}",
-                    "description": "VSCode.glob list of paths to ignore in the analysis. '{<glob>,<glob>,<glob>}'"
-                },
-                "solidity-metrics.file.limit": {
-                    "type": "integer",
-                    "default": 2000,
-                    "description": "Maximum number of files to process in the workspace"
-                }
-            }
-        },
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "solidity-metrics.contextMenu.report"
-                }
-            ]
-        }
-    },
+    "main": "./src/index.js",
+    "bin": "./bin/solmet",
     "dependencies": {
+        "showdown": "^1.9.0",
         "sloc": "^0.2.1",
-        "solidity-parser-antlr": "^0.4.2"
+        "solidity-parser-antlr": "^0.4.2",
+        "yargs": "^13.2.4"
     }
 }
