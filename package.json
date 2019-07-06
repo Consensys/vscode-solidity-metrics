@@ -2,7 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics Report",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "keywords": [
         "solidity",
         "ethereum",
@@ -43,7 +43,7 @@
                 "category": "Solidity Metrics"
             },{
                 "command": "solidity-metrics.contextMenu.report",
-                "title": "Solidity Metrics",
+                "title": "Solidity: metrics",
                 "category": "Solidity Metrics"
             }
         ],
@@ -66,7 +66,8 @@
         "menus": {
             "explorer/context": [
                 {
-                    "command": "solidity-metrics.contextMenu.report"
+                    "command": "solidity-metrics.contextMenu.report",
+                    "group": "solidity"
                 }
             ]
         }
