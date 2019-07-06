@@ -37,11 +37,13 @@
                 "command": "solidity-metrics.workspace.report",
                 "title": "Report metrics for workspace",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.activeFile.report",
                 "title": "Report metrics for current file",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.contextMenu.report",
                 "title": "Solidity: metrics",
                 "category": "Solidity Metrics"
@@ -74,6 +76,7 @@
     },
     "dependencies": {
         "sloc": "^0.2.1",
-        "solidity-parser-antlr": "^0.4.2"
+        "solidity-parser-antlr": "^0.4.2",
+        "surya": "^0.2.12-dev.12"
     }
 }

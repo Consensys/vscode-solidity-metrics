@@ -17,8 +17,11 @@ const path = require('path');
 
 const parser = require('solidity-parser-antlr');
 const parserHelpers = require("./parserHelpers")
+
 const crypto = require('crypto');
 const sloc = require('sloc');
+
+const surya = require('surya');
 
 const TSHIRT_HR = Object.freeze({"SMALL":"Small", "MEDIUM":"Medium", "LARGE":"Large", "X_LARGE":"X-Large", "XX_LARGE":"XX-Large", "XXXXXX_LARGE":"XXX-Huge!"})
 const TSHIRT = Object.freeze({"SMALL":1, "MEDIUM":2, "LARGE":3, "X_LARGE":4, "XX_LARGE":5, "XXXXXX_LARGE":6})
@@ -159,6 +162,13 @@ class SolidityMetricsContainer {
         }
     }
 
+    getDotGraphs(){
+        return {
+            '#surya-inheritance':surya.inheritance(this.seenFiles,{draggable:false}),  //key must match the div-id in the markdown template!
+            '#surya-callgraph':surya.graph(this.seenFiles)
+        }
+    }
+
     totals(){
         let total = {
             totals : new Metric(),
@@ -179,6 +189,9 @@ class SolidityMetricsContainer {
         return total;
     }
 
+    /**
+     * @note: div id must match the SolidityMetricsContainer.getDotGraphs() object key which is also the div-id!
+     */
     generateReportMarkdown(){
 
         let totals = this.totals();
@@ -277,14 +290,20 @@ This section lists functions that are explicitly declared public or payable. Ple
 - **Other Graph Metrics:** TBD
 - **Number of deployable (most derived) Contracts:** TBD
 
-//SURYA FANCY GRAPH HERE
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <div id="surya-inheritance" style="text-align: center;"></div> 
+</div>
+
 
 #### Call-Graph
 
 - **Cyclomatic Complexity:** TBD
 - **Other Graph Metrics:** TBD
 
-//SURYA FANCY GRAPH HERE
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <div id="surya-callgraph" style="text-align: center;"></div>
+</div>
+
 
 #### Totals
 
@@ -295,6 +314,11 @@ This section lists functions that are explicitly declared public or payable. Ple
 \`\`\`json
     ${JSON.stringify(totals,null,2)}
 \`\`\`
+
+
+#### Contract Summary
+
+${surya.mdreport(this.seenFiles).replace("### ","#####").replace("## Sūrya's Description Report","") /* remove surya title, fix layout */} 
 
 `; 
 

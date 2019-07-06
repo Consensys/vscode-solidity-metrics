@@ -32,13 +32,14 @@ class AnonymouseDocument {
     }
 }
 
-function previewHtml(webView, document, markdownTemplate, jsonData){
+function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
 
     console.log({
         command:"renderReport", 
         value:{
             markdownTemplate:markdownTemplate,
-            jsonData:jsonData
+            jsonData:jsonData,
+            dotGraphs:dotGraphs
         }
     })
 
@@ -49,7 +50,8 @@ function previewHtml(webView, document, markdownTemplate, jsonData){
                     command:"renderReport", 
                     value:{
                         markdownTemplate:markdownTemplate,
-                        jsonData:jsonData
+                        jsonData:jsonData,
+                        dotGraphs:dotGraphs
                     }
                 })
             console.log("webpanel end")
@@ -76,7 +78,7 @@ function onActivate(context) {
             metrics.inputFileGlob = document.fileName.replace(metrics.basePath,"")
 
             metrics.analyze(document.fileName)
-            previewHtml(webView, document, metrics.generateReportMarkdown(), metrics.totals())
+            previewHtml(webView, document, metrics.generateReportMarkdown(), metrics.totals(), metrics.getDotGraphs())
             
         })
     )
@@ -105,7 +107,7 @@ function onActivate(context) {
                     })
                 })
 
-            previewHtml(webView, new AnonymouseDocument("workspace","workspace"), metrics.generateReportMarkdown(), metrics.totals())
+            previewHtml(webView, new AnonymouseDocument("workspace","workspace"), metrics.generateReportMarkdown(), metrics.totals(), metrics.getDotGraphs())
             
         })
     )
@@ -138,7 +140,7 @@ function onActivate(context) {
                     })
                 })
 
-            previewHtml(webView, new AnonymouseDocument("fromContextMenu","fromContextMenu"), metrics.generateReportMarkdown(), metrics.totals())
+            previewHtml(webView, new AnonymouseDocument("fromContextMenu","fromContextMenu"), metrics.generateReportMarkdown(), metrics.totals(), metrics.getDotGraphs())
 
         })
     )
