@@ -240,7 +240,7 @@ The analysis finished with **${this.errors.length}** errors and **${this.seenDup
 
 ${this.errors.length ? "**Errors:**\n\n" + this.errors.join("\n* ") : ""}
 
-${this.truffleProjectLocations.length ? "**Truffle Project Locations Observed:**\n* " + this.truffleProjectLocations.map(f => "./"+f.replace(this.basePath, "")).join("\n* ") : ""}
+${this.truffleProjectLocations.length ? "**Truffle Project Locations Observed:**\n* " + this.truffleProjectLocations.map(f => "./"+f.replace(this.basePath, "")).join("\n* ") : ""} 
 
 #### Risk
 
@@ -253,6 +253,9 @@ ${this.truffleProjectLocations.length ? "**Truffle Project Locations Observed:**
 <div class="wrapper" style="max-width: 512px; margin: auto">
     <canvas id="chart-nsloc-total"></canvas>
 </div>
+
+- **nSLOC (normalized, total)**: ${totals.totals.nsloc.source} 
+- **nSLOC (normalized, avg/file)**: ${totals.avg.nsloc.source} 
 
 #### Inline Documentation
 
