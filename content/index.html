@@ -6,13 +6,22 @@
     <script src="js/chartjs-plugin-colorschemes.min.js"></script>
 
     <script src="js/showdown.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/github-markdown.css">
-
-    
-    <script src="sampleData.js"></script>
+    <script src="js/showdown-table.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/github-markdown.css"/>
 </head>
 <body>
     <div class=content id="preview"></div>
+    <script>
+        function toggleVisibility(id, anchor) {
+            if(document.getElementById(id).style.display=="none"){
+                document.getElementById(id).style.display = "block";
+                anchor.text="[➖]";
+            } else {
+                document.getElementById(id).style.display = "none";
+                anchor.text="[➕]";
+            }
+        }
+    </script>
     <script src="report.js"></script>
     <script>
         window.addEventListener('message', event => {
@@ -25,7 +34,7 @@
                 }
             }, false);
         function renderReport(args){
-            var sd = new showdown.Converter();
+            var sd = new showdown.Converter({extensions: ['table']});
 
             preview = document.getElementById('preview');
             preview.innerHTML = sd.makeHtml(args.markdownTemplate);
@@ -85,11 +94,11 @@
                 data: {
                     labels: sloc.keys,
                     datasets: [{
-                        label:"normalized sloc",
-                        data: sloc.nsloc
-                    },{
                         label:"sloc",
                         data: sloc.sloc
+                    },{
+                        label:"normalized sloc",
+                        data: sloc.nsloc
                     }],
                 },
                 options: {
@@ -102,7 +111,6 @@
             });
 
             var numData = getNum(inputDataJson)
-            console.log(numData)
             var myBarChart = new Chart('chart-num-bar', {
                     type: 'bar',
                     data: {
@@ -131,7 +139,38 @@
                         },
                     }
                 });
+                var numDataAst = getNumAst(inputDataJson)
+                var myBarChartAst = new Chart('chart-num-bar-ast', {
+                    type: 'bar',
+                    data: {
+                    labels: numDataAst.keys,
+                        datasets: [{
+                            label:"totals",
+                            data: numDataAst.totals
+                        },{
+                            label:"perSourceUnit",
+                            data: numDataAst.avg
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Numbers'
+                        },
+                        scales: {
+                            yAxes: [{
+                                type: 'logarithmic',
+                            }]
+                        },
+                    }
+                });
             }
+
+            
     </script>
 
 <!--

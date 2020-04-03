@@ -1,12 +1,13 @@
 {
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
-    "description": "Solidity Metrics Report",
+    "description": "Solidity Metrics",
     "version": "0.0.1",
     "keywords": [
         "solidity",
         "ethereum",
         "metrics",
+        "statistics",
         "complexity",
         "risk"
     ],
@@ -37,13 +38,15 @@
                 "command": "solidity-metrics.workspace.report",
                 "title": "Report metrics for workspace",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.activeFile.report",
                 "title": "Report metrics for current file",
                 "category": "Solidity Metrics"
-            },{
+            },
+            {
                 "command": "solidity-metrics.contextMenu.report",
-                "title": "Solidity Metrics",
+                "title": "Solidity: Metrics",
                 "category": "Solidity Metrics"
             }
         ],
@@ -66,13 +69,14 @@
         "menus": {
             "explorer/context": [
                 {
-                    "command": "solidity-metrics.contextMenu.report"
+                    "command": "solidity-metrics.contextMenu.report",
+                    "group": "solidity"
                 }
             ]
         }
     },
     "dependencies": {
         "sloc": "^0.2.1",
-        "solidity-parser-antlr": "^0.4.2"
+        "solidity-parser-diligence": "^0.4.18"
     }
 }

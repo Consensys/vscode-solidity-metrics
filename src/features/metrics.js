@@ -1,8 +1,9 @@
+'use strict';
 /** 
  * @author github.com/tintinweb
  * @license MIT
  * 
- * taken from the armlet example
+ * 
  * */
 
  /*
@@ -11,64 +12,62 @@
     get all source lines referenced by statements
     calculate external calls in complexity
  */
+const parser = require('solidity-parser-diligence');
+const parserHelpers = require("./parserHelpers");
 
 const fs = require('fs');
-const path = require('path');
-
-const parser = require('solidity-parser-antlr');
-const parserHelpers = require("./parserHelpers")
 const crypto = require('crypto');
 const sloc = require('sloc');
 
-const TSHIRT_HR = Object.freeze({"SMALL":"Small", "MEDIUM":"Medium", "LARGE":"Large", "X_LARGE":"X-Large", "XX_LARGE":"XX-Large", "XXXXXX_LARGE":"XXX-Huge!"})
-const TSHIRT = Object.freeze({"SMALL":1, "MEDIUM":2, "LARGE":3, "X_LARGE":4, "XX_LARGE":5, "XXXXXX_LARGE":6})
+const TSHIRT_HR = Object.freeze({"SMALL":"Small", "MEDIUM":"Medium", "LARGE":"Large", "X_LARGE":"X-Large", "XX_LARGE":"XX-Large", "XXXXXX_LARGE":"XXX-Huge!"});
+const TSHIRT = Object.freeze({"SMALL":1, "MEDIUM":2, "LARGE":3, "X_LARGE":4, "XX_LARGE":5, "XXXXXX_LARGE":6});
 
 const tshirtSizes = {
     nsloc: function(val) {
-        if(val <= 200) return TSHIRT.SMALL
-        else if(val <= 1000) return TSHIRT.MEDIUM
-        else if(val <= 2000) return TSHIRT.LARGE
-        else if(val <= 4500) return TSHIRT.X_LARGE
-        else if(val <= 10000) return TSHIRT.XX_LARGE
-        else return TSHIRT.XXXXXX_LARGE
+        if(val <= 200) return TSHIRT.SMALL;
+        else if(val <= 1000) return TSHIRT.MEDIUM;
+        else if(val <= 2000) return TSHIRT.LARGE;
+        else if(val <= 4500) return TSHIRT.X_LARGE;
+        else if(val <= 10000) return TSHIRT.XX_LARGE;
+        else return TSHIRT.XXXXXX_LARGE;
     },
     files: function(val){
-        if(val <= 4) return TSHIRT.SMALL
-        else if(val <= 20) return TSHIRT.MEDIUM
-        else if(val <= 30) return TSHIRT.LARGE
-        else if(val <= 60) return TSHIRT.X_LARGE
-        else if(val <= 150) return TSHIRT.XX_LARGE
-        else return TSHIRT.XXXXXX_LARGE
+        if(val <= 4) return TSHIRT.SMALL;
+        else if(val <= 20) return TSHIRT.MEDIUM;
+        else if(val <= 30) return TSHIRT.LARGE;
+        else if(val <= 60) return TSHIRT.X_LARGE;
+        else if(val <= 150) return TSHIRT.XX_LARGE;
+        else return TSHIRT.XXXXXX_LARGE;
     },
     perceivedComplexity: function(val) {
-        if(val <= 50) return TSHIRT.SMALL
-        else if(val <= 100) return TSHIRT.MEDIUM
-        else if(val <= 200) return TSHIRT.LARGE
-        else if(val <= 400) return TSHIRT.X_LARGE
-        else if(val <= 600) return TSHIRT.XX_LARGE
-        else return TSHIRT.XXXXXX_LARGE
+        if(val <= 50) return TSHIRT.SMALL;
+        else if(val <= 100) return TSHIRT.MEDIUM;
+        else if(val <= 200) return TSHIRT.LARGE;
+        else if(val <= 400) return TSHIRT.X_LARGE;
+        else if(val <= 600) return TSHIRT.XX_LARGE;
+        else return TSHIRT.XXXXXX_LARGE;
     },
     commentRatio: function(val) {
-        if(val <= 0.2) return TSHIRT.XXXXXX_LARGE  // lessEq than 20% of source is comments
-        else if(val <= 0.3) return TSHIRT.XX_LARGE
-        else if(val <= 0.4) return TSHIRT.X_LARGE
-        else if(val <= 0.5) return TSHIRT.LARGE
-        else if(val <= 0.6) return TSHIRT.MEDIUM  // lessEq than 60% of source is comments
-        else return TSHIRT.SMALL  // > 60% of source is comments; good 
+        if(val <= 0.2) return TSHIRT.XXXXXX_LARGE;  // lessEq than 20% of source is comments
+        else if(val <= 0.3) return TSHIRT.XX_LARGE;
+        else if(val <= 0.4) return TSHIRT.X_LARGE;
+        else if(val <= 0.5) return TSHIRT.LARGE;
+        else if(val <= 0.6) return TSHIRT.MEDIUM;  // lessEq than 60% of source is comments
+        else return TSHIRT.SMALL;  // > 60% of source is comments; good 
     },
     experimentalFeatures: function(arr){
-        if(!arr) return TSHIRT.SMALL
-        else if(arr.length<=1) return TSHIRT.MEDIUM
-        else if(arr.length<=2) return TSHIRT.LARGE
-        return TSHIRT.SMALL
+        if(!arr) return TSHIRT.SMALL;
+        else if(arr.length<=1) return TSHIRT.MEDIUM;
+        else if(arr.length<=2) return TSHIRT.LARGE;
+        return TSHIRT.SMALL;
     },
     compilerVersion: function(arr){
-        if(!arr) return TSHIRT.SMALL
+        if(!arr) return TSHIRT.SMALL;
 
-        if(arr.some(x=>x.startsWith("0.4.") || x.startsWith("^0.4."))) return TSHIRT.MEDIUM  //todo: rely on semver? we dont detect <0.4 atm
-        return TSHIRT.SMALL
+        if(arr.some(x=>x.startsWith("0.4.") || x.startsWith("^0.4."))) return TSHIRT.MEDIUM;  //todo: rely on semver? we dont detect <0.4 atm
+        return TSHIRT.SMALL;
     }
-}
+};
 
 const scores = {
     IfStatement:1,
@@ -91,15 +90,14 @@ const scores = {
     StateVariableDeclaration:1,
     "ContractDefinition:BaseContracts":2,
     ContractDefinition:1,
-
-}
+};
 
 function capitalFirst(string) 
 {
     if(!string.length) {
-        return ""
+        return "";
     } else if(string.length==1){
-        return string.toUpperCase()
+        return string.toUpperCase();
     }
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -113,19 +111,27 @@ class SolidityMetricsContainer {
         this.inputFileGlobExclusions = args.inputFileGlobExclusions || "";
         this.inputFileGlob = args.inputFileGlob || "";
         this.inputFileGlobLimit = args.inputFileGlobLimit;
+        this.excludeFileGlobLimit = args.inputFileGlobLimit;
+        this.debug = args.debug;
+        this.repoInfo = args.repoInfo;
 
-        this.seenFiles = new Array();
-        this.seenDuplicates = new Array();
-        this.seenHashes = new Array();
-        this.metrics = new Array();
-        this.errors = new Array();
+        this.seenFiles = [];
+        this.seenDuplicates = [];
+        this.seenHashes = [];
+        this.metrics = [];
+        this.errors = [];
 
-        this.truffleProjectLocations = new Array();
+        this.truffleProjectLocations = [];
+        this.excludedFiles = [];
         
     }
 
     addTruffleProjectLocation(truffleJsPath){
-        this.truffleProjectLocations = Array.from(new Set([truffleJsPath, ...this.truffleProjectLocations]))
+        this.truffleProjectLocations = Array.from(new Set([truffleJsPath, ...this.truffleProjectLocations]));
+    }
+
+    addExcludedFile(exfile){
+        this.excludedFiles = Array.from(new Set([exfile, ...this.excludedFiles]));
     }
 
     analyze(inputFileGlobs){
@@ -134,11 +140,11 @@ class SolidityMetricsContainer {
     }
 
     analyzeFile(filepath){
-        let content = fs.readFileSync(filepath).toString('utf-8')
+        let content = fs.readFileSync(filepath).toString('utf-8');
         let hash = crypto.createHash('sha1').update(content).digest('base64');
         
         try {
-            var metrics = new SolidityFileMetrics(filepath, content)
+            var metrics = new SolidityFileMetrics(filepath, content);
 
             this.seenFiles.push(filepath);
             if (this.seenHashes.indexOf(hash)>=0){
@@ -148,12 +154,12 @@ class SolidityMetricsContainer {
                 //NEW
                 this.seenHashes.push(hash);
             }
-            this.metrics.push(metrics)
+            this.metrics.push(metrics);
         } catch (e) {
-            console.error(e)
-            this.errors.push(filepath)
+            console.error(e);
+            this.errors.push(filepath);
             if (e instanceof parser.ParserError) {
-                console.log(e.errors)
+                console.log(e.errors);
             }
             return;
         }
@@ -171,10 +177,10 @@ class SolidityMetricsContainer {
             } 
         };
 
-        total.totals = total.totals.sumCreateNewMetric(...this.metrics)
-        total.totals.sloc.commentToSourceRatio = total.totals.sloc.comment/total.totals.sloc.source
-        total.avg = total.avg.sumAvgCreateNewMetric(...this.metrics)
-        total.totals.nsloc.commentToSourceRatio = total.totals.nsloc.comment/total.totals.nsloc.source
+        total.totals = total.totals.sumCreateNewMetric(...this.metrics);
+        total.totals.sloc.commentToSourceRatio = total.totals.sloc.comment/total.totals.sloc.source;
+        total.avg = total.avg.sumAvgCreateNewMetric(...this.metrics);
+        total.totals.nsloc.commentToSourceRatio = total.totals.nsloc.comment/total.totals.nsloc.source;
 
         return total;
     }
@@ -192,113 +198,160 @@ class SolidityMetricsContainer {
 
 # Solidity Metrics for ${this.name}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis feugiat odio tempor suscipit. Suspendisse pretium aliquam nisl eget imperdiet. Praesent aliquet consequat semper. Aliquam massa nibh, blandit at ultricies sit amet, ornare cursus est. Phasellus suscipit, nisl vitae porttitor porttitor, mauris enim vulputate diam, venenatis suscipit velit mi a erat. 
+## Table of contents
 
-## Scope
+- [Scope](#t-scope)
+    - [Source Units in Scope](#t-source-Units-in-Scope)
+    - [Out of Scope](#t-out-of-scope)
+        - [Excluded Source Units](#t-out-of-scope-excluded-source-units)
+        - [Duplicate Source Units](#t-out-of-scope-duplicate-source-units)
+- [Report Overview](#t-report)
+    - [Risk Summary](#t-risk)
+    - [Source Lines](#t-source-lines)
+    - [Inline Documentation](#t-inline-documentation)
+    - [Components](#t-components)
+    - [Exposed Functions](#t-exposed-functions)
+    - [StateVariables](#t-statevariables)
+    - [Capabilities](#t-capabilities)
+    - [Totals](#t-totals)
+- [Appendix I - Excluded Files](#t-appendix1)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis feugiat odio tempor suscipit. Suspendisse pretium aliquam nisl eget imperdiet. Praesent aliquet consequat semper. Aliquam massa nibh, blandit at ultricies sit amet, ornare cursus est. Phasellus suscipit, nisl vitae porttitor porttitor, mauris enim vulputate diam, venenatis suscipit velit mi a erat. 
+## <span id=t-scope>Scope</span>
 
 This section lists files that are in scope for the metrics report. 
 
 - **Project:** \`${this.name}\`
-- **Included Files:** \`${this.inputFileGlob}\`
-- **Excluded Paths:** \`${this.inputFileGlobExclusions}\`
+- **Included Files:** ${`\n` + this.inputFileGlob.replace("{","").replace("}","").split(",").map(g => `    - \`${g}\``).join("\n")}
+- **Excluded Paths:** ${`\n` + this.inputFileGlobExclusions.replace("{","").replace("}","").split(",").map(g => `    - \`${g}\``).join("\n")}
 - **File Limit:** \`${this.inputFileGlobLimit}\`
+    - **Exclude File list Limit:** \`${this.excludeFileGlobLimit}\`
 
-### Source Units in Scope
+- **Repository:** Workspace repository (\`${this.repoInfo.commit}@${this.repoInfo.branch}\`)
 
-Source Units Analyzed: **${this.seenFiles.length}** 
+### <span id=t-source-Units-in-Scope>Source Units in Scope</span>
+
+Source Units Analyzed: **\`${this.seenFiles.length}\`**<br>
+Source Units in Scope: **\`${this.metrics.length}\`** (**${Math.round(this.metrics.length/this.seenFiles.length * 100)}%**)
+
+| Type | File   | Logic Contracts | Interfaces | Lines | nSLOC | Comment Lines | Capabilities |
+|========|=================|============|=======|=======|===============|==============|
+${this.metrics.map(m => `| ${m.metrics.num.contracts ? "📝" : ""}${m.metrics.num.libraries ? "📚" : ""}${m.metrics.num.interfaces ? "🔍" : ""} | ${m.filename.replace(this.basePath, "")} | ${(m.metrics.num.contracts + m.metrics.num.libraries) || "****"} | ${m.metrics.num.interfaces || "****"} | ${m.metrics.sloc.total} | ${m.metrics.nsloc.total} | ${m.metrics.sloc.comment} | **${m.metrics.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${m.metrics.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${m.metrics.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}** |`).join("\n")}
+| **Totals** | ${totals.totals.num.contracts ? "📝" : ""}${totals.totals.num.libraries ? "📚" : ""}${totals.totals.num.interfaces ? "🔍" : ""} | **${(totals.totals.num.contracts + totals.totals.num.libraries) || ""}** | **${totals.totals.num.interfaces || ""}** | **${totals.totals.sloc.total}** | **${totals.totals.nsloc.total}** | **${totals.totals.sloc.comment}** | **${totals.totals.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${totals.totals.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${totals.totals.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}** |
+
+#### <span id=t-out-of-scope>Out of Scope</span>
+
+##### <span id=t-out-of-scope-excluded-source-units>Excluded Source Units</span>
+
+Source Units Excluded: **\`${this.excludedFiles.length}\`**
+
+<a onclick="toggleVisibility('excluded-files', this)">[➕]</a>
+<div id="excluded-files" style="display:none">
+| File   |
+|========|
+${this.excludedFiles.length ? this.excludedFiles.map(f => `|${f.replace(this.basePath, "")}|`).join("\n") : "| None |"}
+
+</div>
 
 
-* ${this.seenFiles.map(f => f.replace(this.basePath, "")).join("\n* ")}
+##### <span id=t-out-of-scope-duplicate-source-units>Duplicate Source Units</span>
+
+Duplicate Source Units Excluded: **\`${this.seenDuplicates.length}\`** 
+
+<a onclick="toggleVisibility('duplicate-files', this)">[➕]</a>
+<div id="duplicate-files" style="display:none">
+| File   |
+|========|
+${this.seenDuplicates.length ? this.seenDuplicates.map(f => `|${f.replace(this.basePath, "")}|`).join("\n") : "| None |"}
+
+</div>
 
 
-
-#### Out of Scope - Duplicate Source Units
-
-* ${this.seenDuplicates.length ? this.seenDuplicates.map(f => f.replace(this.basePath, "")).join("\n* ") : "None"}
-
-
-## Report
+## <span id=t-report>Report</span>
 
 ### Overview
 
-The analysis finished with **${this.errors.length}** errors and **${this.seenDuplicates.length}** duplicate files.
+The analysis finished with **\`${this.errors.length}\`** errors and **\`${this.seenDuplicates.length}\`** duplicate files.
 
 ${this.errors.length ? "**Errors:**\n\n" + this.errors.join("\n* ") : ""}
 
 ${this.truffleProjectLocations.length ? "**Truffle Project Locations Observed:**\n* " + this.truffleProjectLocations.map(f => "./"+f.replace(this.basePath, "")).join("\n* ") : ""}
 
-#### Risk
+#### <span id=t-risk>Risk</span>
 
 <div class="wrapper" style="max-width: 512px; margin: auto">
 			<canvas id="chart-risk-summary"></canvas>
 </div>
 
-#### Source Lines (normalized vs. real)
+#### <span id=t-source-lines>Source Lines (sloc vs. nsloc)</span>
 
 <div class="wrapper" style="max-width: 512px; margin: auto">
     <canvas id="chart-nsloc-total"></canvas>
 </div>
 
-#### Inline Documentation
+#### <span id=t-inline-documentation>Inline Documentation</span>
 
-- **Comment-to-Source Ratio:** On average there are ${Math.round(totals.totals.sloc.source/totals.totals.sloc.comment *100)/100} Source-Code lines for every comment in the Code-Base (lower=better).
-- **ToDo's:** ${totals.totals.sloc.todo}  
+- **Comment-to-Source Ratio:** On average there are\`${Math.round(totals.totals.sloc.source/totals.totals.sloc.comment *100)/100}\` code lines per comment (lower=better).
+- **ToDo's:** \`${totals.totals.sloc.todo}\` 
 
-#### Components
+#### <span id=t-components>Components</span>
 
-- **Contracts:** ${totals.totals.num.contracts}  
-- **Libraries:** ${totals.totals.num.libraries}  
-- **Interfaces:** ${totals.totals.num.interfaces}  
+| 📝Contracts   | 📚Libraries | 🔍Interfaces |
+|=============|===========|============|
+| ${totals.totals.num.contracts} | ${totals.totals.num.libraries}  | ${totals.totals.num.interfaces}   |
 
-#### Exposed Functions
+#### <span id=t-exposed-functions>Exposed Functions</span>
 
 This section lists functions that are explicitly declared public or payable. Please note that getter methods for public stateVars are not included.  
 
-- **🌐Public:**  ${totals.totals.num.functionsPublic}  
-- **💰Payable:** ${totals.totals.num.functionsPayable}  
+| 🌐Public   | 💰Payable |
+|============|===========|
+| ${totals.totals.num.functionsPublic} | ${totals.totals.num.functionsPayable}  | 
 
-#### StateVariables
+| External   | Internal | Private | Pure | View |
+|============|==========|=========|======|======|
+| ${totals.totals.ast["FunctionDefinition:External"] || 0} | ${totals.totals.ast["FunctionDefinition:Internal"] || 0}  | ${totals.totals.ast["FunctionDefinition:Private"] || 0} | ${totals.totals.ast["FunctionDefinition:Pure"] || 0} | ${totals.totals.ast["FunctionDefinition:View"] || 0} |
 
-- **Total:** ${totals.totals.num.stateVars}  
-- **🌐Public:** ${totals.totals.num.stateVarsPublic}
+#### <span id=t-statevariables>StateVariables</span>
 
-#### Capabilities
+| Total      | 🌐Public  |
+|============|===========|
+| ${totals.totals.num.stateVars}  | ${totals.totals.num.stateVarsPublic} |
 
-- **Solidity Versions:** ${totals.totals.capabilities.solidityVersions.join(", ")}
-- **Experimental Pragmas:** ${totals.totals.capabilities.experimental.join(", ")}
-- **Can Receive Funds:** ${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}
-- **Assembly:** ${totals.totals.capabilities.assembly ? "yes" : "no"} (Assembly Blocks: ${totals.totals.num.assemblyBlocks})
+#### <span id=t-capabilities>Capabilities</span>
 
-#### Inheritance Graph
+| Solidity Versions observed | 🧪Experimental Features | 💰Can Receive Funds | 🖥 Uses Assembly |
+|============|===========|===========|===========|
+| ${totals.totals.capabilities.solidityVersions.map( v => `\`${v}\``).join("<br/>")} | ${totals.totals.capabilities.experimental.map( v => `\`${v}\``).join("<br/>")} | \`${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}\` | \`${totals.totals.capabilities.assembly ? "yes" : "no"}\`<br/>(${totals.totals.num.assemblyBlocks} asm blocks) |
 
-- **Cyclomatic Complexity:** TBD
-- **Other Graph Metrics:** TBD
-- **Number of deployable (most derived) Contracts:** TBD
 
-//SURYA FANCY GRAPH HERE
+#### <span id=t-totals>Totals</span>
 
-#### Call-Graph
+##### Summary
 
-- **Cyclomatic Complexity:** TBD
-- **Other Graph Metrics:** TBD
-
-//SURYA FANCY GRAPH HERE
-
-#### Totals
-
-<div class="wrapper" style="max-width: 512px; margin: auto">
+<div class="wrapper" style="max-width: 90%; margin: auto">
     <canvas id="chart-num-bar"></canvas>
 </div>
 
-\`\`\`json
-    ${JSON.stringify(totals,null,2)}
-\`\`\`
+##### AST Node Statistics
+
+<div class="wrapper" style="max-width: 90%; margin: auto">
+    <canvas id="chart-num-bar-ast"></canvas>
+</div>
+
+____
+<sub>
+Thinking about smart contract security? We can provide training, ongoing advice, and smart contract auditing. [Contact us](https://diligence.consensys.net/contact/).
+</sub>
 
 `; 
 
-        let mdreport_tail = `
+        let debug_dump_totals = `
+\`\`\`json
+    ${JSON.stringify(totals,null,2)}
+\`\`\`
+`;
+
+        let debug_dump_units = `
 #### Source Units
 
 \`\`\`json
@@ -306,20 +359,24 @@ This section lists functions that are explicitly declared public or payable. Ple
 \`\`\`
         `;
 
-        return mdreport_head+mdreport_tail;
+        if(this.debug){
+            return mdreport_head + debug_dump_totals + debug_dump_units; 
+        }
+        return mdreport_head;
+        
     }
 }
 
 class Metric {
     
     constructor() {
-        this.ast = {}
-        this.sloc = {}
-        this.nsloc = {}
+        this.ast = {};
+        this.sloc = {};
+        this.nsloc = {};
         this.complexity = {
             cyclomatic:undefined,
             perceivedNaiveScore:0
-        }
+        };
         this.summary = {
             perceivedComplexity: undefined,
             size: undefined,
@@ -332,7 +389,7 @@ class Metric {
             inlineDocumentation: undefined,
             compilerFeatures: undefined,
             compilerVersion: undefined
-        }
+        };
         this.num = {
             astStatements:0,
             contractDefinitions:0,
@@ -344,53 +401,53 @@ class Metric {
             functionsPayable:0,
             assemblyBlocks:0,
             stateVars:0,
-            stateVarsPublic:0
-        }
+            stateVarsPublic:0,
+        };
         this.capabilities = {
-            solidityVersions: new Array(),
+            solidityVersions: [],
             assembly: false,
-            experimental: new Array(),
+            experimental: [],
             canReceiveFunds: false
-        }
+        };
     }
     
 
     update(){
         // calculate naiveScore (perceived complexity)
         Object.keys(this.ast).map(function(value, index){
-            this.complexity.perceivedNaiveScore += this.ast[value] * (scores[value] || 0)
-        },this)
+            this.complexity.perceivedNaiveScore += this.ast[value] * (scores[value] || 0);
+        }, this);
 
-        this.num.contractDefinitions = this.ast["ContractDefinition"] || 0
-        this.num.contracts = this.ast["ContractDefinition:Contract"] || 0
-        this.num.libraries = this.ast["ContractDefinition:Library"] || 0
-        this.num.interfaces = this.ast["ContractDefinition:Interface"] || 0
-        this.num.imports = this.ast["ImportDirective"] || 0
-        this.num.functionsPublic = (this.ast["FunctionDefinition:Public"] || 0) + (this.ast["FunctionDefinition:External"] || 0)
-        this.num.functionsPayable = this.ast["FunctionDefinition:Payable"] || 0
-        this.num.assemblyBlocks = this.ast["InlineAssemblyStatement"] || 0
-        this.num.stateVars = this.ast["StateVariableDeclaration"] || 0
-        this.num.stateVarsPublic = this.ast["StateVariableDeclaration:Public"] || 0
+        this.num.contractDefinitions = this.ast["ContractDefinition"] || 0;
+        this.num.contracts = this.ast["ContractDefinition:Contract"] || 0;
+        this.num.libraries = this.ast["ContractDefinition:Library"] || 0;
+        this.num.interfaces = this.ast["ContractDefinition:Interface"] || 0;
+        this.num.imports = this.ast["ImportDirective"] || 0;
+        this.num.functionsPublic = (this.ast["FunctionDefinition:Public"] || 0) + (this.ast["FunctionDefinition:External"] || 0);
+        this.num.functionsPayable = this.ast["FunctionDefinition:Payable"] || 0;
+        this.num.assemblyBlocks = this.ast["InlineAssemblyStatement"] || 0;
+        this.num.stateVars = this.ast["StateVariableDeclaration"] || 0;
+        this.num.stateVarsPublic = this.ast["StateVariableDeclaration:Public"] || 0;
 
 
         // generate human readable ratings
-        this.summary.size = tshirtSizes.nsloc(this.nsloc.source)
-        this.summary.perceivedComplexity = tshirtSizes.perceivedComplexity(this.complexity.perceivedNaiveScore)
-        this.summary.numLogicContracts = tshirtSizes.files(this.num.contracts+this.num.libraries)
-        this.summary.interfaceRisk = tshirtSizes.files(this.num.functionsPublic+this.num.functionsPayable)
-        this.summary.inlineDocumentation = tshirtSizes.commentRatio(this.nsloc.commentToSourceRatio)
-        this.summary.compilerFeatures = tshirtSizes.experimentalFeatures(this.capabilities.experimental)
-        this.summary.compilerVersion = tshirtSizes.compilerVersion(this.capabilities.solidityVersions)
-        if(this.ast["SourceUnit"]>1) this.summary.numFiles = tshirtSizes.files(this.ast["SourceUnit"])
+        this.summary.size = tshirtSizes.nsloc(this.nsloc.source);
+        this.summary.perceivedComplexity = tshirtSizes.perceivedComplexity(this.complexity.perceivedNaiveScore);
+        this.summary.numLogicContracts = tshirtSizes.files(this.num.contracts+this.num.libraries);
+        this.summary.interfaceRisk = tshirtSizes.files(this.num.functionsPublic+this.num.functionsPayable);
+        this.summary.inlineDocumentation = tshirtSizes.commentRatio(this.nsloc.commentToSourceRatio);
+        this.summary.compilerFeatures = tshirtSizes.experimentalFeatures(this.capabilities.experimental);
+        this.summary.compilerVersion = tshirtSizes.compilerVersion(this.capabilities.solidityVersions);
+        if(this.ast["SourceUnit"]>1) this.summary.numFiles = tshirtSizes.files(this.ast["SourceUnit"]);
 
         //postprocess the ast
-        this.capabilities.assembly = Object.keys(this.ast).some(function(k){ return ~k.toLowerCase().indexOf("assembly") })
-        this.capabilities.canReceiveFunds = !!this.ast["FunctionDefinition:Payable"]
+        this.capabilities.assembly = Object.keys(this.ast).some(function(k){ return ~k.toLowerCase().indexOf("assembly"); });
+        this.capabilities.canReceiveFunds = !!this.ast["FunctionDefinition:Payable"];
 
     }
 
     sumCreateNewMetric(...solidityFileMetrics){
-        let result = new Metric()
+        let result = new Metric();
 
         solidityFileMetrics.forEach(a => {  //arguments
             Object.keys(result).forEach(attrib => {  // metric attribs -> object
@@ -400,29 +457,29 @@ class Metric {
                     else if(typeof a.metrics[attrib][key]==="boolean")  // OR
                         result[attrib][key] = result[attrib][key] || a.metrics[attrib][key];
                     else if(Array.isArray(a.metrics[attrib][key]))  // concat arrays -> maybe switch to sets 
-                        result[attrib][key] = Array.from(new Set([...result[attrib][key], ...a.metrics[attrib][key]]))
+                        result[attrib][key] = Array.from(new Set([...result[attrib][key], ...a.metrics[attrib][key]]));
                 });
-            })
-        })
+            });
+        });
 
-        result.update()
-        return result
+        result.update();
+        return result;
     }
 
     sumAvgCreateNewMetric(...solidityFileMetrics){
-        let result = this.sumCreateNewMetric(...solidityFileMetrics)
+        let result = this.sumCreateNewMetric(...solidityFileMetrics);
 
         Object.keys(result).forEach(attrib => {  // metric attribs -> object
             Object.keys(result[attrib]).map(function(key, index) { // argument.keys		
                 if(typeof result[attrib][key]==="number")  // ADD
                     result[attrib][key] /= solidityFileMetrics.length;
                 else
-                    delete result[attrib][key]  //not used
+                    delete result[attrib][key];  //not used
             });
-        })
+        });
 
-        result.update()
-        return result
+        result.update();
+        return result;
     }
 
 }
@@ -432,32 +489,32 @@ class SolidityFileMetrics {
     constructor(filepath, content){
         
         this.filename = filepath;
-        this.metrics = new Metric()
+        this.metrics = new Metric();
         // analyze
         this.analyze(content);
 
         // get sloc
         this.metrics.sloc = sloc(content, "js");
-        this.metrics.sloc.commentToSourceRatio = this.metrics.sloc.comment/this.metrics.sloc.source
+        this.metrics.sloc.commentToSourceRatio = this.metrics.sloc.comment/this.metrics.sloc.source;
 
         // get normalized sloc (function heads normalized)
         const normalized = content.replace(/function\s*\S+\s*\([^{]*/g, 'function ', content);
         this.metrics.nsloc = sloc(normalized, "js");
-        this.metrics.nsloc.commentToSourceRatio = this.metrics.nsloc.comment/this.metrics.nsloc.source
+        this.metrics.nsloc.commentToSourceRatio = this.metrics.nsloc.comment/this.metrics.nsloc.source;
 
-        this.metrics.update()
+        this.metrics.update();
     }
 
     analyze(content){
         let that = this;
-        let ast = this.parse(content)
+        let ast = this.parse(content);
 
         let countAll= new Proxy({
                 PragmaDirective(node){
                     let pragmaString = node.name + ":" + node.value.replace(" ","_");
                     that.metrics.ast["Pragma:"+pragmaString] = ++that.metrics.ast["Pragma:"+pragmaString] || 1;
                     if(node.name.toLowerCase().indexOf("experimental")>=0){
-                        that.metrics.capabilities.experimental.push(node.value)
+                        that.metrics.capabilities.experimental.push(node.value);
                     } else if(node.name.toLowerCase().indexOf("solidity")>=0){
                         that.metrics.capabilities.solidityVersions.push(node.value);
                     }
@@ -476,9 +533,9 @@ class SolidityFileMetrics {
 
                 },
                 VariableDeclaration(node){
-                    let typeName = "VariableDeclaration"
+                    let typeName = "VariableDeclaration";
                     if(node.isStateVar){
-                        typeName = "StateVariableDeclaration"
+                        typeName = "StateVariableDeclaration";
                         that.metrics.ast[typeName+":"+capitalFirst(node.visibility)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.visibility)]|| 1;
                     }
 
@@ -507,20 +564,20 @@ class SolidityFileMetrics {
                 get(target, name) {
                     if(name.endsWith(":exit")) return;  //skip func-exits
                     that.metrics.ast[name] = ++that.metrics.ast[name] || 1;
-                    that.metrics.num.astStatements += 1
-                    return target[name]
+                    that.metrics.num.astStatements += 1;
+                    return target[name];
                 }       
-        })
+        });
         parser.visit(ast, countAll);
     }
 
     parse(content){
-        var ast = parser.parse(content, {loc:false, tolerant:true})
+        var ast = parser.parse(content, {loc:false, tolerant:true});
         return ast;
     }
 }
 
 module.exports = {
     SolidityMetricsContainer:SolidityMetricsContainer
-}
+};
 

@@ -21,7 +21,7 @@ SOFTWARE.
 body {
   font-family: Helvetica, arial, sans-serif;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.3;
   padding-top: 10px;
   padding-bottom: 10px;
   background-color: white;
@@ -132,9 +132,8 @@ p, blockquote, ul, ol, dl, li, table, pre {
 }
 
 hr {
-  border: 0 none;
+  border: 1px solid;
   color: #cccccc;
-  height: 4px;
   padding: 0;
 }
 
