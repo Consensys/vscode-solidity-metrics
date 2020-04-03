@@ -5,9 +5,14 @@
     <script src="js/Chart.bundle.min.js"></script>
     <script src="js/chartjs-plugin-colorschemes.min.js"></script>
 
-    <script src="js/showdown.js"></script>
+    <script src="js/showdown.min.js"></script>
     <script src="js/showdown-table.min.js"></script>
     <link rel="stylesheet" type="text/css" href="css/github-markdown.css"/>
+
+    <!-- d3graphviz and graphvizSvg: dot visualization -->
+    <script src="js/d3graphviz/viz.js"></script>
+    <script src="js/d3graphviz/d3.min.js"></script>
+    <script src="js/d3graphviz/d3-graphviz.min.js"></script>
 </head>
 <body>
     <div class=content id="preview"></div>
@@ -38,9 +43,16 @@
 
             preview = document.getElementById('preview');
             preview.innerHTML = sd.makeHtml(args.markdownTemplate);
-            renderGraphs(args.jsonData, window.chartColors)
+            renderCharts(args.jsonData, window.chartColors)
+
+            Object.entries(args.dotGraphs).forEach(entry => {
+                let graphname = entry[0];
+                let dotsrc = entry[1];
+                //use key and value here
+                renderGraphviz(dotsrc, graphname)
+                });
         }
-        function renderGraphs(inputDataJson, presets){
+        function renderCharts(inputDataJson, presets){
             var presets = window.chartColors;
 
             let risks = getRisks(inputDataJson)
@@ -56,7 +68,7 @@
                     }, {
                         data: risks.avg,
                         hidden: false,
-                        label: 'perSourceUnit',
+                        label: 'average',
                         fill: 0
                     }]
                 },
@@ -119,7 +131,7 @@
                             label:"totals",
                             data: numData.totals
                         },{
-                            label:"perSourceUnit",
+                            label:"average",
                             data: numData.avg
                         }],
                     },
@@ -148,7 +160,7 @@
                             label:"totals",
                             data: numDataAst.totals
                         },{
-                            label:"perSourceUnit",
+                            label:"average",
                             data: numDataAst.avg
                         }],
                     },
@@ -170,7 +182,26 @@
                 });
             }
 
-            
+            function renderGraphviz(dotSrc, targetId) {
+        var graphviz = d3.select(targetId).graphviz();
+
+        var dotSrcLines = dotSrc.split('\n');
+
+        transition = d3.transition("startTransition")
+            .ease(d3.easeLinear)
+            .delay(0)
+            .duration(0);
+
+        graphviz
+            .fade(true)
+            .transition(transition)
+            .zoomScaleExtent([0,Infinity])
+            .zoom(true) //disable=
+            .renderDot(dotSrc)
+
+
+        nodes = d3.selectAll('.node,.edge,.cluster');
+    }
     </script>
 
 <!--

@@ -19,6 +19,8 @@ const fs = require('fs');
 const crypto = require('crypto');
 const sloc = require('sloc');
 
+const surya = require('surya');
+
 const TSHIRT_HR = Object.freeze({"SMALL":"Small", "MEDIUM":"Medium", "LARGE":"Large", "X_LARGE":"X-Large", "XX_LARGE":"XX-Large", "XXXXXX_LARGE":"XXX-Huge!"});
 const TSHIRT = Object.freeze({"SMALL":1, "MEDIUM":2, "LARGE":3, "X_LARGE":4, "XX_LARGE":5, "XXXXXX_LARGE":6});
 
@@ -165,6 +167,13 @@ class SolidityMetricsContainer {
         }
     }
 
+    getDotGraphs(){
+        return {
+            '#surya-inheritance':surya.inheritance(this.seenFiles,{draggable:false}),  //key must match the div-id in the markdown template!
+            '#surya-callgraph':surya.graph(this.seenFiles)
+        }
+    }
+
     totals(){
         let total = {
             totals : new Metric(),
@@ -185,6 +194,9 @@ class SolidityMetricsContainer {
         return total;
     }
 
+    /**
+     * @note: div id must match the SolidityMetricsContainer.getDotGraphs() object key which is also the div-id!
+     */
     generateReportMarkdown(){
 
         let totals = this.totals();
@@ -214,7 +226,6 @@ class SolidityMetricsContainer {
     - [StateVariables](#t-statevariables)
     - [Capabilities](#t-capabilities)
     - [Totals](#t-totals)
-- [Appendix I - Excluded Files](#t-appendix1)
 
 ## <span id=t-scope>Scope</span>
 
@@ -338,6 +349,31 @@ This section lists functions that are explicitly declared public or payable. Ple
     <canvas id="chart-num-bar-ast"></canvas>
 </div>
 
+##### Inheritance Graph
+
+<a onclick="toggleVisibility('surya-inherit', this)">[➕]</a>
+<div id="surya-inherit" style="display:none">
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <div id="surya-inheritance" style="text-align: center;"></div> 
+</div>
+</div>
+
+##### CallGraph
+
+<a onclick="toggleVisibility('surya-call', this)">[➕]</a>
+<div id="surya-call" style="display:none">
+<div class="wrapper" style="max-width: 512px; margin: auto">
+    <div id="surya-callgraph" style="text-align: center;"></div>
+</div>
+</div>
+
+###### Contract Summary
+
+<a onclick="toggleVisibility('surya-mdreport', this)">[➕]</a>
+<div id="surya-mdreport" style="display:none">
+${surya.mdreport(this.seenFiles).replace("### ","#####").replace("## Sūrya's Description Report","") /* remove surya title, fix layout */} 
+
+</div>
 ____
 <sub>
 Thinking about smart contract security? We can provide training, ongoing advice, and smart contract auditing. [Contact us](https://diligence.consensys.net/contact/).

@@ -77,6 +77,7 @@
     },
     "dependencies": {
         "sloc": "^0.2.1",
-        "solidity-parser-diligence": "^0.4.18"
+        "solidity-parser-diligence": "^0.4.18",
+        "surya": "^0.3.6-dev.8"
     }
 }
