@@ -7,14 +7,15 @@
         "solidity",
         "ethereum",
         "metrics",
-        "statistics",
+        "code",
+        "exploration",
         "complexity",
         "risk"
     ],
     "publisher": "tintinweb",
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.20.2"
+        "vscode": "^1.40.2"
     },
     "categories": [
         "Programming Languages"
