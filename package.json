@@ -4,13 +4,15 @@
     "description": "Solidity Metrics",
     "version": "0.0.1",
     "keywords": [
+        "code",
+        "metrics",
         "solidity",
         "ethereum",
-        "metrics",
-        "code",
+        "summary",
         "exploration",
         "complexity",
-        "risk"
+        "risk",
+        "vscode"
     ],
     "publisher": "tintinweb",
     "icon": "images/icon.png",
@@ -18,7 +20,7 @@
         "vscode": "^1.40.2"
     },
     "categories": [
-        "Programming Languages"
+        "Other"
     ],
     "bugs": {
         "url": "https://github.com/ConsenSys/vscode-solidity-metrics/issues"

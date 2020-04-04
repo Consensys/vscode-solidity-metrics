@@ -171,7 +171,7 @@ class SolidityMetricsContainer {
         return {
             '#surya-inheritance':surya.inheritance(this.seenFiles,{draggable:false}),  //key must match the div-id in the markdown template!
             '#surya-callgraph':surya.graph(this.seenFiles)
-        }
+        };
     }
 
     totals(){
