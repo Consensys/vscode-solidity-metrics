@@ -237,7 +237,7 @@ This section lists files that are in scope for the metrics report.
 - **File Limit:** \`${this.inputFileGlobLimit}\`
     - **Exclude File list Limit:** \`${this.excludeFileGlobLimit}\`
 
-- **Repository:** Workspace repository (\`${this.repoInfo.branch}\`@\`${this.repoInfo.commit}\`)
+- **Workspace Repository:** \`${this.repoInfo.remote}\` (\`${this.repoInfo.branch}\`@\`${this.repoInfo.commit}\`)
 
 ### <span id=t-source-Units-in-Scope>Source Units in Scope</span>
 

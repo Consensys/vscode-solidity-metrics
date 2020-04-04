@@ -18,8 +18,9 @@ const path = require('path');
 /** funcdecs */
 
 function getWsGitInfo(){
-    let branch = "unknown branch";
-    let commit = "unknown commit#";
+    let branch = "unknown_branch";
+    let commit = "unknown_commit";
+    let remote = "";
 
     let basePath = vscode.workspace.rootPath; 
 
@@ -33,12 +34,19 @@ function getWsGitInfo(){
             if (branchFileNormalized.startsWith(basePath) && fs.existsSync(branchFileNormalized)){
                 branch = branchFile.replace("refs/heads/","");
                 commit = fs.readFileSync(branchFileNormalized).toString('utf-8').trim(); 
+                if(fs.existsSync(basePath + "/.git/FETCH_HEAD")){
+                    let fetchHead = fs.readFileSync(basePath + "/.git/FETCH_HEAD").toString('utf-8').trim().split("\n").find(line => line.startsWith(commit));
+                    remote = fetchHead.trim().split(/[\s]+/).pop();
+                }
             }
+
+            
         }
     }
     return {
         branch: branch,
-        commit: commit
+        commit: commit,
+        remote: remote
     };
 }
 
@@ -148,7 +156,7 @@ function onActivate(context) {
             
 
             previewHtml(webView, 
-                new AnonymouseDocument("workspace","workspace"), 
+                new AnonymouseDocument(vscode.workspace.name, vscode.workspace.name), 
                 metrics.generateReportMarkdown(), 
                 metrics.totals(),
                 metrics.getDotGraphs());
@@ -214,7 +222,7 @@ function onActivate(context) {
             
 
             previewHtml(webView, 
-                new AnonymouseDocument("fromContextMenu","fromContextMenu"), 
+                new AnonymouseDocument(vscode.workspace.name, vscode.workspace.name), 
                 metrics.generateReportMarkdown(), 
                 metrics.totals(),
                 metrics.getDotGraphs());
