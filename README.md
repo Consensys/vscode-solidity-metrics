@@ -8,15 +8,17 @@
 
 Generate Solidity Source Code Metrics, Complexity and Risk profile reports for your project.
 
-![vscode-solidity-metrics3](https://user-images.githubusercontent.com/2865694/57970224-1e706280-797f-11e9-9136-74e51bd7be00.gif)
+![vscode-solidity-metrics3](https://user-images.githubusercontent.com/2865694/78451004-0252de00-7683-11ea-93d7-4c5dc436a14b.gif)
 
 
 
 ## Credits
 
+* [Sūrya](https://github.com/ConsenSys/surya)
 * [Github Markdown CSS](https://gist.github.com/tuzz/3331384)
 * [ShowdownJS]()
 * [Chartjs]()
+* [Alla Afanasenko](https://www.iconfinder.com/icons/1433396/black_background_diagram_finance_pie_chart_presentation_report_icon) (icon on logo composition)
 
 ## Release Notes
 
