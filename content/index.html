@@ -128,11 +128,12 @@
                     data: {
                     labels: numData.keys,
                         datasets: [{
-                            label:"totals",
+                            label:"total",
                             data: numData.totals
                         },{
                             label:"average",
-                            data: numData.avg
+                            data: numData.avg,
+                            hidden: true
                         }],
                     },
                     options: {
@@ -142,26 +143,34 @@
                         },
                         title: {
                             display: true,
-                            text: 'Numbers'
+                            text: 'Summary'
                         },
                         scales: {
                             yAxes: [{
                                 type: 'logarithmic',
+                                ticks: {
+                                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                                    beginAtZero: true   
+                                }
                             }]
                         },
                     }
                 });
-                var numDataAst = getNumAst(inputDataJson)
+                var numDataAst = getNumAst(
+                    inputDataJson, 
+                    function(k) { return !k.startsWith("FunctionCall:Name:") && !k.startsWith("AssemblyCall:Name:")},
+                    true)
                 var myBarChartAst = new Chart('chart-num-bar-ast', {
                     type: 'bar',
                     data: {
                     labels: numDataAst.keys,
                         datasets: [{
-                            label:"totals",
+                            label:"total",
                             data: numDataAst.totals
                         },{
                             label:"average",
-                            data: numDataAst.avg
+                            data: numDataAst.avg,
+                            hidden: true
                         }],
                     },
                     options: {
@@ -171,16 +180,92 @@
                         },
                         title: {
                             display: true,
-                            text: 'Numbers'
+                            text: 'AST Elements'
                         },
                         scales: {
                             yAxes: [{
                                 type: 'logarithmic',
+                                ticks: {
+                                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                                    beginAtZero: true   
+                                }
                             }]
                         },
                     }
                 });
+
+                //filtered data
+                var numDataAstFC = getNumAst(
+                    inputDataJson, 
+                    function(key){return key.startsWith("FunctionCall:Name:")},
+                    true);
+                var myBarChartAstFuncCall = new Chart('chart-num-bar-ast-funccalls', {
+                    type: 'bar',
+                    data: {
+                    labels: numDataAstFC.keys,
+                        datasets: [{
+                            label:"total",
+                            data: numDataAstFC.totals
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Function Calls'
+                        },
+                        scales: {
+                            yAxes: [{
+                                type: 'logarithmic',
+                                ticks: {
+                                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                                    beginAtZero: true   
+                                }
+                            }]
+                        },
+                    }
+                });
+
+                var numDataAstAC = getNumAst(
+                    inputDataJson, 
+                    function(key){return key.startsWith("AssemblyCall:Name:")},
+                    true);
+                var myBarChartAstFuncCall = new Chart('chart-num-bar-ast-asmcalls', {
+                    type: 'bar',
+                    data: {
+                    labels: numDataAstAC.keys,
+                        datasets: [{
+                            label:"total",
+                            data: numDataAstAC.totals
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Assembly Calls'
+                        },
+                        scales: {
+                            yAxes: [{
+                                type: 'logarithmic',
+                                ticks: {
+                                    suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                                    beginAtZero: true   
+                                }
+                            }]
+                        },
+                    }
+                });
+
+                //
             }
+            
 
             function renderGraphviz(dotSrc, targetId) {
         var graphviz = d3.select(targetId).graphviz();

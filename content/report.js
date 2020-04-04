@@ -44,15 +44,21 @@ function getNum(inputJson){
     return datasets;
 }
 
-function getNumAst(inputJson){
+function getNumAst(inputJson, filterKey, hideZeroValue){
     let datasets = {
         totals:new Array(),
         avg:new Array(),
-        keys: Object.keys(inputJson.totals.ast)
+        keys: Object.keys(inputJson.totals.ast).filter(k => filterKey===undefined ? true : filterKey(k))
     };
     datasets.keys.forEach(key => {
-        datasets.totals.push(inputJson.totals.ast[key] || 0);
-        datasets.avg.push(inputJson.avg.ast[key] || 0);
+        if(hideZeroValue && inputJson.totals.ast[key]){
+            datasets.totals.push(inputJson.totals.ast[key] || 0);
+            datasets.avg.push(inputJson.avg.ast[key] || 0);
+        } else {
+            datasets.totals.push(inputJson.totals.ast[key] || 0);
+            datasets.avg.push(inputJson.avg.ast[key] || 0);
+        }
     });
     return datasets;
 }
+

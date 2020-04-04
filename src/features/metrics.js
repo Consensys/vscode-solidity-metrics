@@ -246,8 +246,8 @@ Source Units in Scope: **\`${this.metrics.length}\`** (**${Math.round(this.metri
 
 | Type | File   | Logic Contracts | Interfaces | Lines | nSLOC | Comment Lines | Capabilities |
 |========|=================|============|=======|=======|===============|==============|
-${this.metrics.map(m => `| ${m.metrics.num.contracts ? "📝" : ""}${m.metrics.num.libraries ? "📚" : ""}${m.metrics.num.interfaces ? "🔍" : ""} | ${m.filename.replace(this.basePath, "")} | ${(m.metrics.num.contracts + m.metrics.num.libraries) || "****"} | ${m.metrics.num.interfaces || "****"} | ${m.metrics.sloc.total} | ${m.metrics.nsloc.total} | ${m.metrics.sloc.comment} | **${m.metrics.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${m.metrics.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${m.metrics.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}** |`).join("\n")}
-| ${totals.totals.num.contracts ? "📝" : ""}${totals.totals.num.libraries ? "📚" : ""}${totals.totals.num.interfaces ? "🔍" : ""} | **Totals** | **${(totals.totals.num.contracts + totals.totals.num.libraries) || ""}** | **${totals.totals.num.interfaces || ""}** | **${totals.totals.sloc.total}** | **${totals.totals.nsloc.total}** | **${totals.totals.sloc.comment}** | **${totals.totals.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${totals.totals.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${totals.totals.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}** |
+${this.metrics.map(m => `| ${m.metrics.num.contracts ? "📝" : ""}${m.metrics.num.libraries ? "📚" : ""}${m.metrics.num.interfaces ? "🔍" : ""} | ${m.filename.replace(this.basePath, "")} | ${(m.metrics.num.contracts + m.metrics.num.libraries) || "****"} | ${m.metrics.num.interfaces || "****"} | ${m.metrics.sloc.total} | ${m.metrics.nsloc.total} | ${m.metrics.sloc.comment} | **${m.metrics.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${m.metrics.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${m.metrics.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${m.metrics.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${m.metrics.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${m.metrics.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${m.metrics.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${m.metrics.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${m.metrics.capabilities.ecrecover ? "<abbr title='create/create2'>🌀</abbr>":""}** |`).join("\n")}
+| ${totals.totals.num.contracts ? "📝" : ""}${totals.totals.num.libraries ? "📚" : ""}${totals.totals.num.interfaces ? "🔍" : ""} | **Totals** | **${(totals.totals.num.contracts + totals.totals.num.libraries) || ""}** | **${totals.totals.num.interfaces || ""}** | **${totals.totals.sloc.total}** | **${totals.totals.nsloc.total}** | **${totals.totals.sloc.comment}** | **${totals.totals.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${totals.totals.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${totals.totals.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${totals.totals.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${totals.totals.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${totals.totals.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${totals.totals.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${totals.totals.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${totals.totals.capabilities.ecrecover ? "<abbr title='create/create2'>🌀</abbr>":""}** |
 
 #### <span id=t-out-of-scope>Out of Scope</span>
 
@@ -330,9 +330,13 @@ This section lists functions that are explicitly declared public or payable. Ple
 
 #### <span id=t-capabilities>Capabilities</span>
 
-| Solidity Versions observed | 🧪Experimental Features | 💰Can Receive Funds | 🖥 Uses Assembly |
+| Solidity Versions observed | 🧪 Experimental Features | 💰 Can Receive Funds | 🖥 Uses Assembly | 💣 Has Destroyable Contracts | 
 |============|===========|===========|===========|
-| ${totals.totals.capabilities.solidityVersions.map( v => `\`${v}\``).join("<br/>")} | ${totals.totals.capabilities.experimental.map( v => `\`${v}\``).join("<br/>")} | \`${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}\` | \`${totals.totals.capabilities.assembly ? "yes" : "no"}\`<br/>(${totals.totals.num.assemblyBlocks} asm blocks) |
+| ${totals.totals.capabilities.solidityVersions.map( v => `\`${v}\``).join("<br/>")} | ${totals.totals.capabilities.experimental.map( v => `\`${v}\``).join("<br/>")} | \`${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}\` | \`${totals.totals.capabilities.assembly ? "yes" : "no"}\`<br/>(${totals.totals.num.assemblyBlocks} asm blocks) | \`${totals.totals.capabilities.destroyable ? "yes" : "no"}\` | 
+
+| 📤 Transfers ETH | ⚡ Low-Level Calls | 🧮 Uses Hash Functions | 🔖 ECRecover | 🌀 Create/Create2 |
+|============|===========|===========|===========|===========|
+| \`${totals.totals.capabilities.explicitValueTransfer ? "yes" : "no"}\` | \`${totals.totals.capabilities.lowLevelCall ? "yes" : "no"}\` | \`${totals.totals.capabilities.hashFuncs ? "yes" : "no"}\` | \`${totals.totals.capabilities.ecrecover ? "yes" : "no"}\` | \`${totals.totals.capabilities.deploysContract ? "yes" : "no"}\` | 
 
 
 #### <span id=t-totals>Totals</span>
@@ -344,6 +348,20 @@ This section lists functions that are explicitly declared public or payable. Ple
 </div>
 
 ##### AST Node Statistics
+
+###### Function Calls
+
+<div class="wrapper" style="max-width: 90%; margin: auto">
+    <canvas id="chart-num-bar-ast-funccalls"></canvas>
+</div>
+
+###### Assembly Calls
+
+<div class="wrapper" style="max-width: 90%; margin: auto">
+    <canvas id="chart-num-bar-ast-asmcalls"></canvas>
+</div>
+
+###### AST Total
 
 <div class="wrapper" style="max-width: 90%; margin: auto">
     <canvas id="chart-num-bar-ast"></canvas>
@@ -417,7 +435,7 @@ class Metric {
             perceivedComplexity: undefined,
             size: undefined,
             numLogicContracts: undefined,
-            humFiles: undefined,
+            numFiles: undefined,
             inheritance: undefined,
             callgraph: undefined,
             cyclomatic: undefined,
@@ -443,11 +461,19 @@ class Metric {
             solidityVersions: [],
             assembly: false,
             experimental: [],
-            canReceiveFunds: false
+            canReceiveFunds: false,
+            destroyable: false,
+            explicitValueTransfer: false,
+            lowLevelCall: false,
+            hashFuncs: false,
+            ecrecover: false,
+            deploysContract: false
         };
+
+        this.xx = 0;
     }
     
-
+    
     update(){
         // calculate naiveScore (perceived complexity)
         Object.keys(this.ast).map(function(value, index){
@@ -480,6 +506,13 @@ class Metric {
         this.capabilities.assembly = Object.keys(this.ast).some(function(k){ return ~k.toLowerCase().indexOf("assembly"); });
         this.capabilities.canReceiveFunds = !!this.ast["FunctionDefinition:Payable"];
 
+        this.capabilities.destroyable = !!(this.ast["FunctionCall:Name:selfdestruct"] || this.ast["FunctionCall:Name:suicide"] || this.ast["AssemblyCall:selfdestruct"] || this.ast["AssemblyCall:suicide"]);
+        this.capabilities.explicitValueTransfer = !!(this.ast["FunctionCall:Name:transfer"] || this.ast["FunctionCall:Name:send"] || Object.keys(this.ast).filter(k => k.startsWith("FunctionCall:Name:")).some(k => k.endsWith(".value")));  //any value call
+        this.capabilities.lowLevelCall = Object.keys(this.ast).some(k => k.match(/(Function|Assembly)Call:Name:(delegatecall|callcode|staticcall|call)[\.$]/g));
+        this.capabilities.delegateCall = Object.keys(this.ast).some(k => k.startsWith("FunctionCall:Name:delegatecall")) || !!this.ast["AssemblyCall:delegatecall"];
+        this.capabilities.hashFuncs =  Object.keys(this.ast).some(k => k.match(/(Function|Assembly)Call:Name:(keccak256|sha3|sha256|ripemed160)/g)); //ignore addmod|mulmod 
+        this.capabilities.ecrecover = !!this.ast["FunctionCall:Name:ecrecover"];
+        this.capabilities.deploysContract = Object.keys(this.ast).some(k => k.startsWith("NewContract:")) || !!this.ast["AssemblyCall:create"] || !!this.ast["AssemblyCall:create2"];
     }
 
     sumCreateNewMetric(...solidityFileMetrics){
@@ -545,66 +578,105 @@ class SolidityFileMetrics {
         let that = this;
         let ast = this.parse(content);
 
-        let countAll= new Proxy({
-                PragmaDirective(node){
-                    let pragmaString = node.name + ":" + node.value.replace(" ","_");
-                    that.metrics.ast["Pragma:"+pragmaString] = ++that.metrics.ast["Pragma:"+pragmaString] || 1;
-                    if(node.name.toLowerCase().indexOf("experimental")>=0){
-                        that.metrics.capabilities.experimental.push(node.value);
-                    } else if(node.name.toLowerCase().indexOf("solidity")>=0){
-                        that.metrics.capabilities.solidityVersions.push(node.value);
-                    }
-                },
-                ContractDefinition(node) {
-                    that.metrics.ast["ContractDefinition:"+capitalFirst(node.kind)] = ++that.metrics.ast["ContractDefinition:"+capitalFirst(node.kind)] || 1;
-                    that.metrics.ast["ContractDefinition:BaseContracts"] = that.metrics.ast["ContractDefinition:BaseContracts"] + node.baseContracts.length || node.baseContracts.length;
-                },
-                FunctionDefinition(node){
-                    let stateMutability = node.stateMutability || "internal"; //set default
-                    that.metrics.ast["FunctionDefinition:"+capitalFirst(stateMutability)] = ++that.metrics.ast["FunctionDefinition:"+capitalFirst(stateMutability)]|| 1;
-                    that.metrics.ast["FunctionDefinition:"+capitalFirst(node.visibility)] = ++that.metrics.ast["FunctionDefinition:"+capitalFirst(node.visibility)] || 1;
-                },
-                StateVariableDeclaration(node){
-                    //NOP - this already counts the VariableDeclaration subelements.
-
-                },
-                VariableDeclaration(node){
-                    let typeName = "VariableDeclaration";
-                    if(node.isStateVar){
-                        typeName = "StateVariableDeclaration";
-                        that.metrics.ast[typeName+":"+capitalFirst(node.visibility)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.visibility)]|| 1;
-                    }
-
-                    if(node.storageLocation){
-                        that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)]|| 1;
-                    }
-                    
-                    if(node.isDeclaredConst)
-                        that.metrics.ast[typeName+":Const"] = ++that.metrics.ast[typeName+":Const"]|| 1;
-                    if(node.isIndexed)
-                        that.metrics.ast[typeName+":Indexed"] = ++that.metrics.ast[typeName+":Indexed"]|| 1;
-                },
-                UserDefinedTypeName(node){
-                    that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)] = ++that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)]|| 1;
-                },
-                FunctionCall(node){
-                    let funcCallType = parserHelpers.isRegularFunctionCall(node) ? "Regular": null;
-                    if (!funcCallType && parserHelpers.isMemberAccess(node)){
-                        funcCallType =  parserHelpers.isMemberAccessOfAddress(node) ? "Address" : parserHelpers.isAContractTypecast(node) ? "ContractTypecast" : "MemberAccess";
-                    }
-                    if(funcCallType)
-                        that.metrics.ast["FunctionCall:"+funcCallType] = ++that.metrics.ast["FunctionCall:"+funcCallType] || 1;
-                    
+        let countAllHandler = {
+            PragmaDirective(node){
+                let pragmaString = node.name + ":" + node.value.replace(" ","_");
+                that.metrics.ast["Pragma:"+pragmaString] = ++that.metrics.ast["Pragma:"+pragmaString] || 1;
+                if(node.name.toLowerCase().indexOf("experimental")>=0){
+                    that.metrics.capabilities.experimental.push(node.value);
+                } else if(node.name.toLowerCase().indexOf("solidity")>=0){
+                    that.metrics.capabilities.solidityVersions.push(node.value);
                 }
-            },{
+            },
+            ContractDefinition(node) {
+                that.metrics.ast["ContractDefinition:"+capitalFirst(node.kind)] = ++that.metrics.ast["ContractDefinition:"+capitalFirst(node.kind)] || 1;
+                that.metrics.ast["ContractDefinition:BaseContracts"] = that.metrics.ast["ContractDefinition:BaseContracts"] + node.baseContracts.length || node.baseContracts.length;
+            },
+            FunctionDefinition(node){
+                let stateMutability = node.stateMutability || "internal"; //set default
+                that.metrics.ast["FunctionDefinition:"+capitalFirst(stateMutability)] = ++that.metrics.ast["FunctionDefinition:"+capitalFirst(stateMutability)]|| 1;
+                that.metrics.ast["FunctionDefinition:"+capitalFirst(node.visibility)] = ++that.metrics.ast["FunctionDefinition:"+capitalFirst(node.visibility)] || 1;
+            },
+            StateVariableDeclaration(node){
+                //NOP - this already counts the VariableDeclaration subelements.
+
+            },
+            VariableDeclaration(node){
+                let typeName = "VariableDeclaration";
+                if(node.isStateVar){
+                    typeName = "StateVariableDeclaration";
+                    that.metrics.ast[typeName+":"+capitalFirst(node.visibility)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.visibility)]|| 1;
+                }
+
+                if(node.storageLocation){
+                    that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)] = ++that.metrics.ast[typeName+":"+capitalFirst(node.storageLocation)]|| 1;
+                }
+                
+                if(node.isDeclaredConst)
+                    that.metrics.ast[typeName+":Const"] = ++that.metrics.ast[typeName+":Const"]|| 1;
+                if(node.isIndexed)
+                    that.metrics.ast[typeName+":Indexed"] = ++that.metrics.ast[typeName+":Indexed"]|| 1;
+            },
+            UserDefinedTypeName(node){
+                that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)] = ++that.metrics.ast["UserDefinedTypeName:"+capitalFirst(node.namePath)]|| 1;
+            },
+            FunctionCall(node){
+                let callName;
+                let funcCallType;
+
+                if(parserHelpers.isRegularFunctionCall(node)){
+                    funcCallType = "Regular";
+                    callName = node.expression.name;
+                } else if (parserHelpers.isMemberAccess(node)) {
+                    funcCallType =  parserHelpers.isMemberAccessOfAddress(node) ? "Address" : parserHelpers.isAContractTypecast(node) ? "ContractTypecast" : "MemberAccess";
+                    callName = node.expression.memberName;
+
+                    if(callName=="value" && parserHelpers.isMemberAccess(node.expression)){
+                        // address.call.value(val)(data)
+                        callName = node.expression.expression.memberName + "." + callName;
+                    }
+                } else if (node.expression && node.expression.type=="Identifier" && parserHelpers.BUILTINS.includes(node.expression.name)){
+                    funcCallType = "BuiltIn";
+                    callName = node.expression.name;
+                } else if (node.expression && node.expression.type == "NewExpression") {
+                    if(node.expression.typeName.type == "UserDefinedTypeName"){
+                        //count contract creation calls
+                        that.metrics.ast["NewContract:"+node.expression.typeName.namePath] = ++that.metrics.ast["NewContract:"+node.expression.typeName.namePath] || 1;
+                    }
+                } else {
+                    // else TypeNameConversion (e.g. casts.)
+                }
+
+                if(funcCallType){
+                    that.metrics.ast["FunctionCall:Type:"+funcCallType] = ++that.metrics.ast["FunctionCall:Type:"+funcCallType] || 1;
+                    that.metrics.ast["FunctionCall:Name:"+callName] = ++that.metrics.ast["FunctionCall:Name:"+callName] || 1;   
+                }
+            },
+            AssemblyCall(node){
+                if(node.functionName && parserHelpers.BUILTINS_ASM.includes(node.functionName)){
+                    that.metrics.ast["AssemblyCall:Name:"+node.functionName] = ++that.metrics.ast["AssemblyCall:Name:"+node.functionName] || 1;    
+                } 
+            }
+        };
+
+        let countAll= new Proxy(
+            countAllHandler,{
                 get(target, name) {
+                    //note: this is getting called twice , once for the vistor[node.name] check and then for visitor[node.name](node) call.
                     if(name.endsWith(":exit")) return;  //skip func-exits
+
+                    //we have to fix all handler native values afterwards (/2) for the 2nd get call.
                     that.metrics.ast[name] = ++that.metrics.ast[name] || 1;
                     that.metrics.num.astStatements += 1;
+        
                     return target[name];
                 }       
         });
         parser.visit(ast, countAll);
+
+        // IMPORTANT: fix values caused by the proxy being entered twice by diligence parser for defined handler functions (once to check if handler is available, and for handler call) 
+        Object.keys(countAllHandler).forEach( k => this.metrics.ast[k] ? this.metrics.ast[k] /= 2 : undefined )
+
     }
 
     parse(content){

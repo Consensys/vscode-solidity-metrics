@@ -64,15 +64,6 @@ class AnonymouseDocument {
 
 function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
 
-    console.log({
-        command:"renderReport", 
-        value:{
-            markdownTemplate:markdownTemplate,
-            jsonData:jsonData,
-            dotGraphs:dotGraphs
-        }
-    });
-
     webView.revealOrCreatePreview(vscode.ViewColumn.Beside, document)
         .then(webpanel => {
             webpanel.getPanel().postMessage({
