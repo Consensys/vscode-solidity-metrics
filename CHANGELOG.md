@@ -1,5 +1,10 @@
 # Change Log
 
+## v0.0.4
+- fixed capabilities: create/create2
+- added capabilities: delegatecall
+- fixed log charts start at 0
+
 ## v0.0.3
 - new metrics
 - new charts

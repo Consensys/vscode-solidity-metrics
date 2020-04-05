@@ -237,7 +237,7 @@ This section lists files that are in scope for the metrics report.
 - **File Limit:** \`${this.inputFileGlobLimit}\`
     - **Exclude File list Limit:** \`${this.excludeFileGlobLimit}\`
 
-- **Workspace Repository:** \`${this.repoInfo.remote}\` (\`${this.repoInfo.branch}\`@\`${this.repoInfo.commit}\`)
+- **Workspace Repository:** \`${this.repoInfo.remote|| "unknown"}\` (\`${this.repoInfo.branch}\`@\`${this.repoInfo.commit}\`)
 
 ### <span id=t-source-Units-in-Scope>Source Units in Scope</span>
 
@@ -246,8 +246,8 @@ Source Units in Scope: **\`${this.metrics.length}\`** (**${Math.round(this.metri
 
 | Type | File   | Logic Contracts | Interfaces | Lines | nSLOC | Comment Lines | Capabilities |
 |========|=================|============|=======|=======|===============|==============|
-${this.metrics.map(m => `| ${m.metrics.num.contracts ? "📝" : ""}${m.metrics.num.libraries ? "📚" : ""}${m.metrics.num.interfaces ? "🔍" : ""} | ${m.filename.replace(this.basePath, "")} | ${(m.metrics.num.contracts + m.metrics.num.libraries) || "****"} | ${m.metrics.num.interfaces || "****"} | ${m.metrics.sloc.total} | ${m.metrics.nsloc.total} | ${m.metrics.sloc.comment} | **${m.metrics.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${m.metrics.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${m.metrics.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${m.metrics.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${m.metrics.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${m.metrics.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${m.metrics.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${m.metrics.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${m.metrics.capabilities.ecrecover ? "<abbr title='create/create2'>🌀</abbr>":""}** |`).join("\n")}
-| ${totals.totals.num.contracts ? "📝" : ""}${totals.totals.num.libraries ? "📚" : ""}${totals.totals.num.interfaces ? "🔍" : ""} | **Totals** | **${(totals.totals.num.contracts + totals.totals.num.libraries) || ""}** | **${totals.totals.num.interfaces || ""}** | **${totals.totals.sloc.total}** | **${totals.totals.nsloc.total}** | **${totals.totals.sloc.comment}** | **${totals.totals.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${totals.totals.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${totals.totals.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${totals.totals.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${totals.totals.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${totals.totals.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${totals.totals.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${totals.totals.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${totals.totals.capabilities.ecrecover ? "<abbr title='create/create2'>🌀</abbr>":""}** |
+${this.metrics.map(m => `| ${m.metrics.num.contracts ? "📝" : ""}${m.metrics.num.libraries ? "📚" : ""}${m.metrics.num.interfaces ? "🔍" : ""} | ${m.filename.replace(this.basePath, "")} | ${(m.metrics.num.contracts + m.metrics.num.libraries) || "****"} | ${m.metrics.num.interfaces || "****"} | ${m.metrics.sloc.total} | ${m.metrics.nsloc.total} | ${m.metrics.sloc.comment} | **${m.metrics.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${m.metrics.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${m.metrics.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${m.metrics.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${m.metrics.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${m.metrics.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${m.metrics.capabilities.delegateCall ? "<abbr title='DelegateCall'>👥</abbr>":""}${m.metrics.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${m.metrics.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${m.metrics.capabilities.deploysContract ? "<abbr title='create/create2'>🌀</abbr>":""}** |`).join("\n")}
+| ${totals.totals.num.contracts ? "📝" : ""}${totals.totals.num.libraries ? "📚" : ""}${totals.totals.num.interfaces ? "🔍" : ""} | **Totals** | **${(totals.totals.num.contracts + totals.totals.num.libraries) || ""}** | **${totals.totals.num.interfaces || ""}** | **${totals.totals.sloc.total}** | **${totals.totals.nsloc.total}** | **${totals.totals.sloc.comment}** | **${totals.totals.capabilities.assembly ? "<abbr title='Uses Assembly'>🖥</abbr>":""}${totals.totals.capabilities.experimental.length ? "<abbr title='Experimental Features'>🧪</abbr>":""}${totals.totals.capabilities.canReceiveFunds ? "<abbr title='Payable Functions'>💰</abbr>":""}${totals.totals.capabilities.destroyable ? "<abbr title='Destroyable Contract'>💣</abbr>":""}${totals.totals.capabilities.explicitValueTransfer ? "<abbr title='Initiates ETH Value Transfer'>📤</abbr>":""}${totals.totals.capabilities.lowLevelCall ? "<abbr title='Performs Low-Level Calls'>⚡</abbr>":""}${totals.totals.capabilities.delegateCall ? "<abbr title='DelegateCall'>👥</abbr>":""}${totals.totals.capabilities.hashFuncs ? "<abbr title='Uses Hash-Functions'>🧮</abbr>":""}${totals.totals.capabilities.ecrecover ? "<abbr title='Handles Signatures: ecrecover'>🔖</abbr>":""}${totals.totals.capabilities.deploysContract ? "<abbr title='create/create2'>🌀</abbr>":""}** |
 
 #### <span id=t-out-of-scope>Out of Scope</span>
 
@@ -334,9 +334,9 @@ This section lists functions that are explicitly declared public or payable. Ple
 |============|===========|===========|===========|
 | ${totals.totals.capabilities.solidityVersions.map( v => `\`${v}\``).join("<br/>")} | ${totals.totals.capabilities.experimental.map( v => `\`${v}\``).join("<br/>")} | \`${totals.totals.capabilities.canReceiveFunds ? "yes" : "no"}\` | \`${totals.totals.capabilities.assembly ? "yes" : "no"}\`<br/>(${totals.totals.num.assemblyBlocks} asm blocks) | \`${totals.totals.capabilities.destroyable ? "yes" : "no"}\` | 
 
-| 📤 Transfers ETH | ⚡ Low-Level Calls | 🧮 Uses Hash Functions | 🔖 ECRecover | 🌀 Create/Create2 |
+| 📤 Transfers ETH | ⚡ Low-Level Calls | 👥 DelegateCall | 🧮 Uses Hash Functions | 🔖 ECRecover | 🌀 New/Create/Create2 |
 |============|===========|===========|===========|===========|
-| \`${totals.totals.capabilities.explicitValueTransfer ? "yes" : "no"}\` | \`${totals.totals.capabilities.lowLevelCall ? "yes" : "no"}\` | \`${totals.totals.capabilities.hashFuncs ? "yes" : "no"}\` | \`${totals.totals.capabilities.ecrecover ? "yes" : "no"}\` | \`${totals.totals.capabilities.deploysContract ? "yes" : "no"}\` | 
+| \`${totals.totals.capabilities.explicitValueTransfer ? "yes" : "no"}\` | \`${totals.totals.capabilities.lowLevelCall ? "yes" : "no"}\` | \`${totals.totals.capabilities.delegateCall ? "yes" : "no"}\` | \`${totals.totals.capabilities.hashFuncs ? "yes" : "no"}\` | \`${totals.totals.capabilities.ecrecover ? "yes" : "no"}\` | \`${totals.totals.capabilities.deploysContract ? "yes" : "no"}\`<br>${Object.keys(totals.totals.ast).filter(k => k.match(/(NewContract:|AssemblyCall:Name:create|AssemblyCall:Name:create2)/g)).map( k => `→ \`${k}\``).join("<br/>")} | 
 
 
 #### <span id=t-totals>Totals</span>
@@ -506,13 +506,13 @@ class Metric {
         this.capabilities.assembly = Object.keys(this.ast).some(function(k){ return ~k.toLowerCase().indexOf("assembly"); });
         this.capabilities.canReceiveFunds = !!this.ast["FunctionDefinition:Payable"];
 
-        this.capabilities.destroyable = !!(this.ast["FunctionCall:Name:selfdestruct"] || this.ast["FunctionCall:Name:suicide"] || this.ast["AssemblyCall:selfdestruct"] || this.ast["AssemblyCall:suicide"]);
-        this.capabilities.explicitValueTransfer = !!(this.ast["FunctionCall:Name:transfer"] || this.ast["FunctionCall:Name:send"] || Object.keys(this.ast).filter(k => k.startsWith("FunctionCall:Name:")).some(k => k.endsWith(".value")));  //any value call
+        this.capabilities.destroyable = !!(this.ast["FunctionCall:Name:selfdestruct"] || this.ast["FunctionCall:Name:suicide"] || this.ast["AssemblyCall:Name:selfdestruct"] || this.ast["AssemblyCall:Name:suicide"]);
+        this.capabilities.explicitValueTransfer = this.ast["FunctionCall:Name:transfer"] || this.ast["FunctionCall:Name:send"] || Object.keys(this.ast).filter(k => k.startsWith("FunctionCall:Name:")).some(k => k.endsWith(".value"));  //any value call
         this.capabilities.lowLevelCall = Object.keys(this.ast).some(k => k.match(/(Function|Assembly)Call:Name:(delegatecall|callcode|staticcall|call)[\.$]/g));
-        this.capabilities.delegateCall = Object.keys(this.ast).some(k => k.startsWith("FunctionCall:Name:delegatecall")) || !!this.ast["AssemblyCall:delegatecall"];
+        this.capabilities.delegateCall = Object.keys(this.ast).some(k => k.startsWith("FunctionCall:Name:delegatecall")) || !!this.ast["AssemblyCall:Name:delegatecall"];
         this.capabilities.hashFuncs =  Object.keys(this.ast).some(k => k.match(/(Function|Assembly)Call:Name:(keccak256|sha3|sha256|ripemed160)/g)); //ignore addmod|mulmod 
         this.capabilities.ecrecover = !!this.ast["FunctionCall:Name:ecrecover"];
-        this.capabilities.deploysContract = Object.keys(this.ast).some(k => k.startsWith("NewContract:")) || !!this.ast["AssemblyCall:create"] || !!this.ast["AssemblyCall:create2"];
+        this.capabilities.deploysContract = Object.keys(this.ast).some(k => k.startsWith("NewContract:")) || !!(this.ast["AssemblyCall:Name:create"] || this.ast["AssemblyCall:Name:create2"]);
     }
 
     sumCreateNewMetric(...solidityFileMetrics){
@@ -655,6 +655,7 @@ class SolidityFileMetrics {
             AssemblyCall(node){
                 if(node.functionName && parserHelpers.BUILTINS_ASM.includes(node.functionName)){
                     that.metrics.ast["AssemblyCall:Name:"+node.functionName] = ++that.metrics.ast["AssemblyCall:Name:"+node.functionName] || 1;    
+                    console.log("AssemblyCall:Name:"+node.functionName);
                 } 
             }
         };
