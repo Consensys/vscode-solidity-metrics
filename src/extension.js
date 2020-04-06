@@ -35,8 +35,11 @@ function getWsGitInfo(){
                 branch = branchFile.replace("refs/heads/","");
                 commit = fs.readFileSync(branchFileNormalized).toString('utf-8').trim(); 
                 if(fs.existsSync(basePath + "/.git/FETCH_HEAD")){
-                    let fetchHead = fs.readFileSync(basePath + "/.git/FETCH_HEAD").toString('utf-8').trim().split("\n").find(line => line.startsWith(commit));
-                    remote = fetchHead.trim().split(/[\s]+/).pop();
+                    let fetchHeadData = fs.readFileSync(basePath + "/.git/FETCH_HEAD").toString('utf-8').trim().split("\n");
+                    if(fetchHeadData.lenght){
+                        let fetchHead = fetchHeadData.find(line => line.startsWith(commit)) || fetchHeadData.find(line => line.includes(`branch '${branch}' of `)) || fetchHeadData[0];
+                        remote = fetchHead.trim().split(/[\s]+/).pop();
+                    }
                 }
             }
 
