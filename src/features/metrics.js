@@ -5,13 +5,6 @@
  * 
  * 
  * */
-
- /*
-    get ast count - done
-    autodetect interface implementations
-    get all source lines referenced by statements
-    calculate external calls in complexity
- */
 const parser = require('solidity-parser-diligence');
 const parserHelpers = require("./parserHelpers");
 
