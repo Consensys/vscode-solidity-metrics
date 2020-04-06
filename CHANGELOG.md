@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.5  
+- added complexity rating
+
 ## v0.0.4
 - fixed capabilities: create/create2
 - added capabilities: delegatecall
