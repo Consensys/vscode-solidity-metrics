@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.6
+- fixed "undefined.trim()" when parsing repo fetchHEAD
+
 ## v0.0.5  
 - added complexity rating
 
