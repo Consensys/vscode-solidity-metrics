@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.7
+- print relative path in surya report
+- webpack for websrc/main.js
+
 ## v0.0.6
 - fixed "undefined.trim()" when parsing repo fetchHEAD
 

@@ -103,6 +103,7 @@ class SolidityMetricsContainer {
         this.name = name;
 
         this.basePath = args.basePath || "";
+        this.basePathRegex = new RegExp(this.basePath, "g");
         this.inputFileGlobExclusions = args.inputFileGlobExclusions || "";
         this.inputFileGlob = args.inputFileGlob || "";
         this.inputFileGlobLimit = args.inputFileGlobLimit;
@@ -382,7 +383,7 @@ This section lists functions that are explicitly declared public or payable. Ple
 
 <a onclick="toggleVisibility('surya-mdreport', this)">[➕]</a>
 <div id="surya-mdreport" style="display:none">
-${surya.mdreport(this.seenFiles).replace("### ","#####").replace("## Sūrya's Description Report","") /* remove surya title, fix layout */} 
+${surya.mdreport(this.seenFiles).replace("### ","#####").replace("## Sūrya's Description Report","").replace(this.basePathRegex, "") /* remove surya title, fix layout */} 
 
 </div>
 ____
