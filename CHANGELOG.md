@@ -1,8 +1,9 @@
 # Change Log
 
 ## v0.0.7
-- print relative path in surya report
-- webpack for websrc/main.js
+- new: command to export the metrics report as html
+- fixed: surya report now shows relative paths
+- new: webpack websrc/main.js
 
 ## v0.0.6
 - fixed "undefined.trim()" when parsing repo fetchHEAD

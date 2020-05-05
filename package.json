@@ -2,7 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "keywords": [
         "code",
         "metrics",
@@ -33,7 +33,8 @@
     "activationEvents": [
         "onCommand:solidity-metrics.workspace.report",
         "onCommand:solidity-metrics.contextMenu.report",
-        "onCommand:solidity-metrics.activeFile.report"
+        "onCommand:solidity-metrics.activeFile.report",
+        "onCommand:solidity-metrics.activeFile.exportHtml"
     ],
     "contributes": {
         "commands": [
@@ -45,6 +46,11 @@
             {
                 "command": "solidity-metrics.activeFile.report",
                 "title": "Report metrics for current file",
+                "category": "Solidity Metrics"
+            },
+            {
+                "command": "solidity-metrics.activeFile.exportHtml",
+                "title": "Export current metrics report",
                 "category": "Solidity Metrics"
             },
             {

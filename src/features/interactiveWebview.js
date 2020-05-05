@@ -38,6 +38,17 @@ class InteractiveWebviewGenerator {
         return this.webviewPanels.get(uri);
     }
 
+    getActivePanels(){
+        let panels = [];
+
+        this.webviewPanels.forEach(v => {
+            if(v.getPanel().active){
+                panels.push(v);
+            }
+        });
+        return panels;
+    }
+
     dispose() {
     }
 
@@ -160,6 +171,8 @@ class PreviewPanel {
         this.uri = uri;
         this.panel = panel;
 
+        this.contextData = null;
+
         this.lastRender = null;
     }
 
@@ -177,6 +190,14 @@ class PreviewPanel {
 
     getPanel() {
         return this.panel;
+    }
+
+    getContextData() {
+        return this.contextData;
+    }
+
+    setContextData(contextData){
+        this.contextData = contextData;
     }
 
     renderDot(dotSrc) {

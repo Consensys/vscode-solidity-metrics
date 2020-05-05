@@ -6,7 +6,9 @@
 
 # VSCode Solidity Metrics
 
-Generate Solidity Source Code Metrics, Complexity and Risk profile reports for your project.
+Generate Solidity Source Code Metrics, Complexity and Risk profile reports for your project. 
+
+The report can be exported by calling `cmd + shift + p` → `Solidity Metrics: Export current metrics report`.
 
 ![vscode-solidity-metrics3](https://user-images.githubusercontent.com/2865694/78451004-0252de00-7683-11ea-93d7-4c5dc436a14b.gif)
 

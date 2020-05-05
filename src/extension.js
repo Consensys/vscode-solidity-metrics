@@ -14,9 +14,7 @@ const {SolidityMetricsContainer} = require('./features/metrics');
 const fs = require('fs');
 const path = require('path');
 
-
 /** funcdecs */
-
 function getWsGitInfo(){
     let branch = "unknown_branch";
     let commit = "unknown_commit";
@@ -58,7 +56,7 @@ function previewMarkdown(document, content){
         .then(doc => vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside));
 }
 
-class AnonymouseDocument {
+class AnonymousDocument {
     constructor(fileName,uri){
         this.uri = uri || "";
         this.fileName = fileName || "";
@@ -69,18 +67,95 @@ function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
 
     webView.revealOrCreatePreview(vscode.ViewColumn.Beside, document)
         .then(webpanel => {
+            let data = {
+                markdownTemplate:markdownTemplate,
+                jsonData:jsonData,
+                dotGraphs:dotGraphs
+            };
+            webpanel.setContextData(data);
             webpanel.getPanel().postMessage({
                     command:"renderReport", 
-                    value:{
-                        markdownTemplate:markdownTemplate,
-                        jsonData:jsonData,
-                        dotGraphs:dotGraphs
-                    }
+                    value: data
                 });
             //webpanel.renderDot(options.content)
             //handle messages?
             //webpanel.handleMessages = function (message) {} 
         });
+}
+
+function exportCurrentAsHtml(context, webView){
+
+    let previewPanels = webView.getActivePanels();
+
+    previewPanels.forEach(p => {
+        let msgValue = p.getContextData();
+
+        //export report to workspace
+
+        vscode.window.showSaveDialog({
+            defaultUri: vscode.Uri.file(path.join(vscode.workspace.rootPath,"solidity-metrics.html")),
+            saveLabel: "Export"
+        }).then(fileUri => {
+            if (!fileUri) {
+                return; //abort, nothing selected
+            }
+
+            let result = {'index':'', 'js':[], 'css':[] };
+            let srcFiles = [
+                'index.html',
+                
+                path.join('js', 'Chart.bundle.min.js'), 
+                path.join('js', 'chartjs-plugin-colorschemes.min.js'), 
+
+                
+                path.join('js', 'showdown.min.js'), 
+                path.join('js', 'showdown-table.min.js'), 
+                path.join('css','github-markdown.css'),
+                
+                path.join('js', 'd3graphviz', 'viz.js'), 
+                path.join('js', 'd3graphviz', 'd3.min.js'), 
+                path.join('js', 'd3graphviz', 'd3-graphviz.min.js'), 
+                
+                'main.js', 
+            ];
+            
+            srcFiles.forEach(f => {
+                switch(f.split('.').pop()){
+                    case 'js': result.js.push(fs.readFileSync(path.join(context.extensionPath, "content", f), "utf8")); break;
+                    case 'html': result.index = fs.readFileSync(path.join(context.extensionPath, "content", f), "utf8"); break;
+                    case 'css': result.css.push(fs.readFileSync(path.join(context.extensionPath, "content", f), "utf8")); break;
+                }
+            });
+
+            result.index = result.index
+                .replace(/<script .*?src="(.+)"><\/script>/g,"")
+                .replace(/<link.*\/>/g,"")
+                .replace(/<!-- .* -->/g, "")
+                .replace(/\s{5,}/g,'');
+
+            let staticJsCss = `
+        <style>
+            ${result.css.join("\n<!-- -->\n")}
+        </style>
+        <script>
+            ${result.js.join("\n</script><script>\n")}
+        </script>
+        <script>
+            let staticMetrics = ${JSON.stringify(msgValue)};
+
+            window.postMessage({"command":"renderReport", value:staticMetrics}, '*')
+        </script>`;
+
+            fs.writeFile(fileUri.fsPath, result.index.replace("<!--/*** %%static_metrics%% ***/-->", staticJsCss), function(err) {
+                if(err) {
+                    vscode.window.showErrorMessage('Export failed:' + err);
+                    console.log(err);
+                    return;
+                }
+                vscode.window.showInformationMessage('Export successful → ' + fileUri.fsPath);
+            }); 
+        });
+    });
 }
 
 /** event funcs */
@@ -107,6 +182,12 @@ function onActivate(context) {
                 metrics.generateReportMarkdown(), 
                 metrics.totals(),
                 metrics.getDotGraphs());
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('solidity-metrics.activeFile.exportHtml', (args) => {
+            exportCurrentAsHtml(context, webView);
         })
     );
 
@@ -150,7 +231,7 @@ function onActivate(context) {
             
 
             previewHtml(webView, 
-                new AnonymouseDocument(vscode.workspace.name, vscode.workspace.name), 
+                new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
                 metrics.generateReportMarkdown(), 
                 metrics.totals(),
                 metrics.getDotGraphs());
@@ -216,7 +297,7 @@ function onActivate(context) {
             
 
             previewHtml(webView, 
-                new AnonymouseDocument(vscode.workspace.name, vscode.workspace.name), 
+                new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
                 metrics.generateReportMarkdown(), 
                 metrics.totals(),
                 metrics.getDotGraphs());
