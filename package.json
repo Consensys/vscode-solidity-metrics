@@ -81,6 +81,13 @@
                     "command": "solidity-metrics.contextMenu.report",
                     "group": "solidity"
                 }
+            ],
+            "editor/title/context": [
+                {
+                    "command": "solidity-metrics.activeFile.exportHtml",
+                    "group": "solidity",
+                    "when": "metricsReportActiveContext"
+                }
             ]
         }
     },

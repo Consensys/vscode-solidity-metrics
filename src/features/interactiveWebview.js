@@ -50,14 +50,18 @@ class InteractiveWebviewGenerator {
     }
 
     dispose() {
+        vscode.commands.executeCommand('setContext', 'metricsReportActiveContext', !!this.getActivePanels().length);
     }
 
     rebuild() {
+        let atLeastOneActive = false;
         this.webviewPanels.forEach(panel => {
+            atLeastOneActive |= panel.getPanel().active;
             if(panel.getNeedsRebuild() && panel.getPanel().visible) {
                 this.updateContent(panel, vscode.workspace.textDocuments.find(doc => doc.uri == panel.uri));
             }
         });
+        vscode.commands.executeCommand('setContext', 'metricsReportActiveContext', atLeastOneActive);
     }
 
     async revealOrCreatePreview(displayColumn, doc) {
@@ -72,7 +76,7 @@ class InteractiveWebviewGenerator {
                 previewPanel = that.createPreviewPanel(doc, displayColumn);
                 that.webviewPanels.set(doc.uri, previewPanel);
                 // when the user closes the tab, remove the panel
-                previewPanel.getPanel().onDidDispose(() => that.webviewPanels.delete(doc.uri), undefined, that.context.subscriptions);
+                previewPanel.getPanel().onDidDispose(() => that.webviewPanels.delete(doc.uri) && that.dispose(previewPanel), undefined, that.context.subscriptions);
                 // when the pane becomes visible again, refresh it
                 previewPanel.getPanel().onDidChangeViewState(_ => that.rebuild());
 

@@ -51,6 +51,7 @@ function getWsGitInfo(){
     };
 }
 
+
 function previewMarkdown(document, content){
     vscode.workspace.openTextDocument({content: content, language: "markdown"})
         .then(doc => vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside));
