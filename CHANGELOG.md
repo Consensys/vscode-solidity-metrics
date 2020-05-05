@@ -1,7 +1,7 @@
 # Change Log
 
 ## v0.0.7
-- new: command to export the metrics report as html
+- new: allow to export the metrics report
 - fixed: surya report now shows relative paths
 - new: webpack websrc/main.js
 
