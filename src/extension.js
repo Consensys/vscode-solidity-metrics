@@ -10,7 +10,7 @@
 const vscode = require("vscode");
 const settings = require('./settings');
 const {InteractiveWebviewGenerator} = require('./features/interactiveWebview.js');
-const {SolidityMetricsContainer} = require('./features/metrics');
+const {SolidityMetricsContainer} = require('solidity-code-metrics');
 const fs = require('fs');
 const path = require('path');
 
