@@ -154,11 +154,11 @@ class InteractiveWebviewGenerator {
 
         templateHtml = templateHtml.replace(/<script .*?src="(.+)">/g, (scriptTag, srcPath) => {
             let resource=vscode.Uri.file(
-                path.join(this.context.extensionPath, this.content_folder, path.join(...(srcPath.split("/")))));
+                path.join(this.context.extensionPath, this.content_folder, ...(srcPath.split("/"))));
             return `<script src="${previewPanel.getPanel().webview.asWebviewUri(resource)}">`;
         }).replace(/<link rel="stylesheet" type="text\/css" href="(.+)"\/>/g, (scriptTag, srcPath) => {
             let resource=vscode.Uri.file(
-                path.join(this.context.extensionPath, this.content_folder, path.join(...(srcPath.split("/")))));
+                path.join(this.context.extensionPath, this.content_folder, ...(srcPath.split("/"))));
             return `<link rel="stylesheet" href="${previewPanel.getPanel().webview.asWebviewUri(resource)}"/>`;
         });
         return templateHtml;
