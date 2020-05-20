@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.8
+- Adopt VS Code's 'asWebviewUri' API - #1
+
 ## v0.0.7
 - new: allow to export the metrics report
 - fixed: surya report now shows relative paths
