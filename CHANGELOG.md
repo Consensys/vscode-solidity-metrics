@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.9
+- fix: package.json cleanup
+- update: `solidity-code-metrics` with solidity v0.6.0 support
+
 ## v0.0.8
 - Adopt VS Code's 'asWebviewUri' API - #1
 
