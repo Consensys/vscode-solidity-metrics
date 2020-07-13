@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.10
+- update: `solidity-code-metrics` to 0.0.7 (updating surya to 0.4.1.dev2)
+
 ## v0.0.9
 - fix: package.json cleanup
 - update: `solidity-code-metrics` with solidity v0.6.0 support
