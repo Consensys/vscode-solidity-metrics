@@ -220,7 +220,7 @@ function onActivate(context) {
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: `Solidity-Metrics: analyzing...`,
-                cancellable: true
+                cancellable: false
             }, async (progress, token) => {
                 token.onCancellationRequested(() => {
                     console.log("User canceled the long running operation");
@@ -294,7 +294,7 @@ function onActivate(context) {
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: `Solidity-Metrics: analyzing...`,
-                cancellable: true
+                cancellable: false
             }, async (progress, token) => {
                 token.onCancellationRequested(() => {
                     console.log("User canceled the long running operation");
