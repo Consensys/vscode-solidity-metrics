@@ -2,7 +2,7 @@
 
 ## v0.0.11
 - show progress
-- show warnings if no report could be produce because no valid files were found
+- show warnings if no report could be produced because no valid files were found
 - safeguard surya calls from breaking the report
 - update dependencies
 
