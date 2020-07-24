@@ -2,7 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "keywords": [
         "code",
         "metrics",
@@ -96,7 +96,7 @@
     },
     "dependencies": {
         "sloc": "^0.2.1",
-        "solidity-code-metrics": "^0.0.7"
+        "solidity-code-metrics": "^0.0.8"
     },
     "devDependencies": {
         "webpack": "^4.43.0",
