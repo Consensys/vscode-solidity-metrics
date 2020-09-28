@@ -194,6 +194,10 @@ class PreviewPanel {
         return this.panel;
     }
 
+    getWebView() {
+        return this.panel.webview;
+    }
+
     getContextData() {
         return this.contextData;
     }
