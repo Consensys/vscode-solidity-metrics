@@ -74,7 +74,7 @@ function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
                 dotGraphs:dotGraphs
             };
             webpanel.setContextData(data);
-            webpanel.getPanel().postMessage({
+            webpanel.getPanel().webview.postMessage({
                     command:"renderReport", 
                     value: data
                 });
