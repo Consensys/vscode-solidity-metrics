@@ -2,6 +2,7 @@
 
 ## v0.0.12
 - fixed: report not rendering - #6
+- update: showdown to 1.9.1 (due to security issue in 1.9.0)
 
 ## v0.0.11
 - show progress
