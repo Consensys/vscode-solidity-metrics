@@ -69,7 +69,7 @@ function renderReport(args){
 
     let preview = document.getElementById('preview');
     preview.innerHTML = sd.makeHtml(args.markdownTemplate);
-    renderCharts(args.jsonData, window.chartColors)
+    renderCharts(args.jsonData, window.chartColors);
 
     Object.entries(args.dotGraphs).forEach(entry => {
         let graphname = entry[0];
