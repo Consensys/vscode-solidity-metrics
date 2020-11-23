@@ -95,7 +95,7 @@
         "build:web": "webpack ./websrc/main.js -o ./content/main.js -P"
     },
     "dependencies": {
-        "solidity-code-metrics": "0.0.11"
+        "solidity-code-metrics": "0.0.12"
     },
     "devDependencies": {
         "webpack": "^4.44.2",

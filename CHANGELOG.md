@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.14
+- update: solidity-metrics (show abstract contracts)
+
 ## v0.0.13
 - new: now integrates [solidity-doppelganger](https://github.com/tintinweb/solidity-doppelganger) detection
 - update: dependencies (solidity-metrics, parser, surya)
