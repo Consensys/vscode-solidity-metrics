@@ -1,5 +1,10 @@
 # Change Log
 
+## v0.0.15
+- update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.14)) - fixes #9
+
+**IMPORTANT** metrics changed: `nSLOC -> nLines` and `nSLOC` now only counts code lines.
+
 ## v0.0.14
 - update: solidity-metrics (show abstract contracts)
 
