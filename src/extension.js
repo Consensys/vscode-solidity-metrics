@@ -74,13 +74,13 @@ function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
                 dotGraphs:dotGraphs
             };
             webpanel.setContextData(data);
+            webpanel.renderReport(data);
+            /*
             webpanel.getWebView().postMessage({
                     command:"renderReport", 
                     value: data
                 });
-            //webpanel.renderDot(options.content)
-            //handle messages?
-            //webpanel.handleMessages = function (message) {} 
+            */
         });
 }
 
