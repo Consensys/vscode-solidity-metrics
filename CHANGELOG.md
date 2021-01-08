@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.17
+- update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.16))
+  - new metric: External Dependencies
+
 ## v0.0.16
 - fix: report not rendering first time metrics is used (blank page)
 - update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.15))
