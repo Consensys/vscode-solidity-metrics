@@ -3,6 +3,8 @@
 ## v0.0.17
 - update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.16))
   - new metric: External Dependencies
+  
+![image](https://user-images.githubusercontent.com/2865694/103999393-1e008d00-519d-11eb-9ccd-77e1387781b1.png)
 
 ## v0.0.16
 - fix: report not rendering first time metrics is used (blank page)
