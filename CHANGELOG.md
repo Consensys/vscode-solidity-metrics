@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.18
+- fix: exported metrics report does not render in browser - #10
+
 ## v0.0.17
 - update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.16))
   - new metric: External Dependencies

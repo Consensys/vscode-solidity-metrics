@@ -1,4 +1,3 @@
-const vscode = acquireVsCodeApi();
 
 function getRisks(inputJson){
     console.log(inputJson);
@@ -328,7 +327,11 @@ window.addEventListener('message', event => {
     }, false);
 
 window.onload = function() {
-    vscode.postMessage({
-        command: "onPageLoaded",
-    });
-}
+    if (typeof acquireVsCodeApi === "function") { 
+        const vscode = acquireVsCodeApi();
+
+        vscode.postMessage({
+            command: "onPageLoaded",
+        });  
+    }
+};
