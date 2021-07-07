@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.19
+- update: solidity-metrics / solidity parser
+
 ## v0.0.18
 - fix: exported metrics report does not render in browser - #10
 
