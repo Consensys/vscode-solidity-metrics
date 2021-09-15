@@ -2,6 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
+      "browser": "./dist/web/out.js",
     "version": "0.0.19",
     "keywords": [
         "code",
@@ -92,13 +93,19 @@
         }
     },
     "scripts": {
-        "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'"
+        "build:web": "webpack ./websrc/main.js -o ./content/main.js -P",
+        "wp": "webpack --config web-extension.webpack.config.js"
     },
     "dependencies": {
-        "solidity-code-metrics": "0.0.18"
+        "browserfs": "^1.4.3",
+        "crypto-browserify": "^3.12.0",
+        "path-browserify": "^1.0.1",
+        "sloc": "^0.2.1",
+        "solidity-code-metrics": "0.0.18",
+        "stream-browserify": "^3.0.0"
     },
     "devDependencies": {
-        "webpack": "^5.43.0",
+        "webpack": "^5.52.1",
         "webpack-cli": "^4.7.2"
     }
 }
