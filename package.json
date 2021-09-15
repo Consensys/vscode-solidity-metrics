@@ -2,8 +2,8 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
-    "version": "0.0.12",
-    "browser": "./dist/web/out.js",
+      "browser": "./dist/web/out.js",
+    "version": "0.0.19",
     "keywords": [
         "code",
         "metrics",
@@ -101,11 +101,11 @@
         "crypto-browserify": "^3.12.0",
         "path-browserify": "^1.0.1",
         "sloc": "^0.2.1",
-        "solidity-code-metrics": "^0.0.8",
+        "solidity-code-metrics": "0.0.18"
         "stream-browserify": "^3.0.0"
     },
     "devDependencies": {
         "webpack": "^5.52.1",
-        "webpack-cli": "^3.3.11"
+        "webpack-cli": "^4.7.2"
     }
 }

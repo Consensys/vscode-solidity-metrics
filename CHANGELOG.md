@@ -1,5 +1,33 @@
 # Change Log
 
+## v0.0.19
+- update: solidity-metrics / solidity parser
+
+## v0.0.18
+- fix: exported metrics report does not render in browser - #10
+
+## v0.0.17
+- update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.16))
+  - new metric: External Dependencies
+  
+![image](https://user-images.githubusercontent.com/2865694/103999393-1e008d00-519d-11eb-9ccd-77e1387781b1.png)
+
+## v0.0.16
+- fix: report not rendering first time metrics is used (blank page)
+- update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.15))
+
+## v0.0.15
+- update: solidity-metrics ([Changelog](https://github.com/ConsenSys/solidity-metrics/releases/tag/v0.0.14)) - fixes #9
+
+**IMPORTANT** metrics changed: `nSLOC -> nLines` and `nSLOC` now only counts code lines.
+
+## v0.0.14
+- update: solidity-metrics (show abstract contracts)
+
+## v0.0.13
+- new: now integrates [solidity-doppelganger](https://github.com/tintinweb/solidity-doppelganger) detection
+- update: dependencies (solidity-metrics, parser, surya)
+
 ## v0.0.12
 - fixed: report not rendering - #6
 - update: showdown to 1.9.1 (due to security issue in 1.9.0)

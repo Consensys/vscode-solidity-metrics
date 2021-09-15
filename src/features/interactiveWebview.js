@@ -94,9 +94,6 @@ class InteractiveWebviewGenerator {
         console.log(`Message received from the webview: ${message.command}`);
 
         switch(message.command){
-            case 'onRenderFinished':
-                previewPanel.onRenderFinished(message);
-                break;
             case 'onPageLoaded':
                 previewPanel.onPageLoaded(message);
                 break;
@@ -206,21 +203,20 @@ class PreviewPanel {
         this.contextData = contextData;
     }
 
-    renderDot(dotSrc) {
-        if(this.lastRender && Date.now() - this.lastRender <= 5000) return;  //naive approach: do not call render if it is already rendering (onDidSave fires a lot of events)
-        this.lastRender = Date.now();
-        this.panel.webview.postMessage({ command: 'renderDot', value: dotSrc });
+    renderReport(data){
+        this.panel.webview.postMessage({
+            command:"renderReport", 
+            value: data
+        });
     }
 
     handleMessage(message){
         console.warn('Unexpected command: ' + message.command);
     }
 
-    onRenderFinished(message){
-        this.lockRender = false;
-    }
-
     onPageLoaded(message){
+        //re-render just to make sure we're not stuck on the loading page
+        this.renderReport(this.contextData);
     }
 
     onClick(message){

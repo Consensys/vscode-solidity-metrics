@@ -82,13 +82,13 @@ function previewHtml(webView, document, markdownTemplate, jsonData, dotGraphs){
                 dotGraphs:dotGraphs
             };
             webpanel.setContextData(data);
+            webpanel.renderReport(data);
+            /*
             webpanel.getWebView().postMessage({
                     command:"renderReport", 
                     value: data
                 });
-            //webpanel.renderDot(options.content)
-            //handle messages?
-            //webpanel.handleMessages = function (message) {} 
+            */
         });
 }
 
@@ -199,11 +199,13 @@ function onActivate(context) {
                 console.log(error);
             }
 
-            previewHtml(webView, 
-                document, 
-                metrics.generateReportMarkdown(), 
-                metrics.totals(),
-                dotGraphs);
+            metrics.generateReportMarkdown().then(markdown => {
+                previewHtml(webView, 
+                    document, 
+                    markdown, 
+                    metrics.totals(),
+                    dotGraphs);
+            });
         })
     );
 
@@ -227,7 +229,7 @@ function onActivate(context) {
 
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: `Solidity-Metrics: analyzing...`,
+                title: `Solidity-Metrics: crunching numbers...`,
                 cancellable: false
             }, async (progress, token) => {
                 token.onCancellationRequested(() => {
@@ -267,19 +269,25 @@ function onActivate(context) {
                     vscode.window.showWarningMessage("No valid solidity source files found.");
                     return;
                 }
-
+                progress.report({ increment: 10 });
                 let dotGraphs = {};
                 try {
                     dotGraphs = metrics.getDotGraphs();
                 } catch (error) {
                     console.log(error);
                 }
+                progress.report({ increment: 10 });
+                console.log("YO?")
+                metrics.generateReportMarkdown().then(markdown => {
+                    progress.report({ increment: 1 });
+                    previewHtml(webView, 
+                        new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
+                        markdown, 
+                        metrics.totals(),
+                        dotGraphs);
+                });
 
-                previewHtml(webView, 
-                    new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
-                    metrics.generateReportMarkdown(), 
-                    metrics.totals(),
-                    dotGraphs);
+                
             });
             
         })
@@ -301,7 +309,7 @@ function onActivate(context) {
 
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: `Solidity-Metrics: analyzing...`,
+                title: `Solidity-Metrics: crunching numbers...`,
                 cancellable: false
             }, async (progress, token) => {
                 token.onCancellationRequested(() => {
@@ -366,16 +374,14 @@ function onActivate(context) {
                     console.log(error);
                 }
 
-                previewHtml(webView, 
-                    new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
-                    metrics.generateReportMarkdown(), 
-                    metrics.totals(),
-                    dotGraphs);
+                metrics.generateReportMarkdown().then(markdown => {
+                    previewHtml(webView, 
+                        new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
+                        markdown, 
+                        metrics.totals(),
+                        dotGraphs);
+                });
             });
-
-
-            
-
         })
     );
 }

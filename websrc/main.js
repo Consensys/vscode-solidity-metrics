@@ -69,7 +69,7 @@ function renderReport(args){
 
     let preview = document.getElementById('preview');
     preview.innerHTML = sd.makeHtml(args.markdownTemplate);
-    renderCharts(args.jsonData, window.chartColors)
+    renderCharts(args.jsonData, window.chartColors);
 
     Object.entries(args.dotGraphs).forEach(entry => {
         let graphname = entry[0];
@@ -321,6 +321,17 @@ window.addEventListener('message', event => {
     switch (message.command) {
         case 'renderReport':
             renderReport(message.value);
+            document.getElementById("loading-msg").style.display = "none";
             break;
         }
     }, false);
+
+window.onload = function() {
+    if (typeof acquireVsCodeApi === "function") { 
+        const vscode = acquireVsCodeApi();
+
+        vscode.postMessage({
+            command: "onPageLoaded",
+        });  
+    }
+};
