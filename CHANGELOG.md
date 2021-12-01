@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.20
+- update: solidity-metrics / new metrics
+
 ## v0.0.19
 - update: solidity-metrics / solidity parser
 
