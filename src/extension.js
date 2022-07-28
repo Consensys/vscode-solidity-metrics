@@ -15,12 +15,12 @@ const fs = require('fs');
 const path = require('path');
 
 /** funcdecs */
-function getWsGitInfo(){
+function getWsGitInfo(rootPath){
     let branch = "unknown_branch";
     let commit = "unknown_commit";
     let remote = "";
 
-    let basePath = vscode.workspace.rootPath; 
+    let basePath = rootPath;
 
     if (fs.existsSync(basePath + "/.git/HEAD")){
         let branchFile = fs.readFileSync(basePath + "/.git/HEAD").toString('utf-8').trim();
@@ -94,7 +94,7 @@ function exportCurrentAsHtml(context, webView){
         //export report to workspace
 
         vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(path.join(vscode.workspace.rootPath,"solidity-metrics.html")),
+            defaultUri: vscode.Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath,"solidity-metrics.html")),
             saveLabel: "Export"
         }).then(fileUri => {
             if (!fileUri) {
@@ -167,13 +167,15 @@ function onActivate(context) {
         vscode.commands.registerCommand('solidity-metrics.activeFile.report', (args) => {
 
             let document = vscode.window.activeTextEditor.document;
-            let metrics = new SolidityMetricsContainer(vscode.workspace.name, {
-                basePath:vscode.workspace.rootPath + "/",
+            let selectedWorkspace = vscode.workspace.getWorkspaceFolder(document.uri);
+
+            let metrics = new SolidityMetricsContainer(selectedWorkspace.name, {
+                basePath: selectedWorkspace.uri.fsPath + "/",
                 inputFileGlobExclusions:settings.extensionConfig().file.exclusions.glob,
                 inputFileGlob: undefined,
                 inputFileGlobLimit: settings.extensionConfig().file.limit,
                 debug:settings.extensionConfig().debug,
-                repoInfo: getWsGitInfo()
+                repoInfo: getWsGitInfo(selectedWorkspace.uri.fsPath)
             });
             metrics.inputFileGlob = document.fileName.replace(metrics.basePath,"");
 
@@ -210,91 +212,94 @@ function onActivate(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('solidity-metrics.workspace.report', async (args) => {
 
-            let metrics = new SolidityMetricsContainer(vscode.workspace.name, {
-                basePath:vscode.workspace.rootPath + "/",
-                inputFileGlobExclusions:settings.extensionConfig().file.exclusions.glob,
-                inputFileGlob:"**/*.sol",
-                inputFileGlobLimit: settings.extensionConfig().file.limit,
-                debug:settings.extensionConfig().debug,
-                repoInfo: getWsGitInfo()
-            });
-
-            vscode.window.withProgress({
-                location: vscode.ProgressLocation.Notification,
-                title: `Solidity-Metrics: crunching numbers...`,
-                cancellable: false
-            }, async (progress, token) => {
-                token.onCancellationRequested(() => {
-                    console.log("User canceled the long running operation");
+            vscode.workspace.workspaceFolders.forEach(selectedWorkspace => {
+                let metrics = new SolidityMetricsContainer(selectedWorkspace.name, {
+                    basePath: selectedWorkspace.uri.fsPath + "/",
+                    inputFileGlobExclusions:settings.extensionConfig().file.exclusions.glob,
+                    inputFileGlob:"**/*.sol",
+                    inputFileGlobLimit: settings.extensionConfig().file.limit,
+                    debug:settings.extensionConfig().debug,
+                    repoInfo: getWsGitInfo(selectedWorkspace.uri.fsPath)
                 });
-
-                await vscode.workspace.findFiles(metrics.inputFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
-                    .then(uris => {
-                        uris.forEach(uri => {
-                            metrics.analyze(uri.fsPath);
-                            progress.report({ increment: 1 });
-                        });
+    
+                vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: `Solidity-Metrics: crunching numbers...`,
+                    cancellable: false
+                }, async (progress, token) => {
+                    token.onCancellationRequested(() => {
+                        console.log("User canceled the long running operation");
                     });
-
-                await vscode.workspace.findFiles("**/truffle*.js", metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
-                    .then(uris => {
-                        uris.forEach(uri => {
-                            if(uri.fsPath.endsWith(".js")){
-                                metrics.addTruffleProjectLocation(uri.fsPath);
+    
+                    await vscode.workspace.findFiles(metrics.inputFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
+                        .then(uris => {
+                            uris.forEach(uri => {
+                                metrics.analyze(uri.fsPath);
                                 progress.report({ increment: 1 });
-                            }
+                            });
                         });
-                    });
-
-                // {**/node_modules,**/mock*,**/test*,**/migrations,**/Migrations.sol}
-                let excludeFilesGlobArray = metrics.inputFileGlobExclusions.replace("{","").replace("}","").split(",").map(g => g.endsWith(".sol") ? g : g + "/**/*.sol");
-
-                await vscode.workspace.findFiles("{" + excludeFilesGlobArray.join(",") + "}", undefined, metrics.excludeFileGlobLimit) 
-                    .then(uris => {
-                        uris.forEach(uri => {
-                            metrics.addExcludedFile(uri.fsPath);
-                            progress.report({ increment: 1 });
+    
+                    await vscode.workspace.findFiles("**/truffle*.js", metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
+                        .then(uris => {
+                            uris.forEach(uri => {
+                                if(uri.fsPath.endsWith(".js")){
+                                    metrics.addTruffleProjectLocation(uri.fsPath);
+                                    progress.report({ increment: 1 });
+                                }
+                            });
                         });
+    
+                    // {**/node_modules,**/mock*,**/test*,**/migrations,**/Migrations.sol}
+                    let excludeFilesGlobArray = metrics.inputFileGlobExclusions.replace("{","").replace("}","").split(",").map(g => g.endsWith(".sol") ? g : g + "/**/*.sol");
+    
+                    await vscode.workspace.findFiles("{" + excludeFilesGlobArray.join(",") + "}", undefined, metrics.excludeFileGlobLimit) 
+                        .then(uris => {
+                            uris.forEach(uri => {
+                                metrics.addExcludedFile(uri.fsPath);
+                                progress.report({ increment: 1 });
+                            });
+                        });
+                    
+                    if(!metrics.seenFiles.length){
+                        vscode.window.showWarningMessage("No valid solidity source files found.");
+                        return;
+                    }
+                    progress.report({ increment: 10 });
+                    let dotGraphs = {};
+                    try {
+                        dotGraphs = metrics.getDotGraphs();
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    progress.report({ increment: 10 });
+                    console.log("YO?")
+                    metrics.generateReportMarkdown().then(markdown => {
+                        progress.report({ increment: 1 });
+                        previewHtml(webView, 
+                            new AnonymousDocument(selectedWorkspace.name, selectedWorkspace.name), 
+                            markdown, 
+                            metrics.totals(),
+                            dotGraphs);
                     });
-                
-                if(!metrics.seenFiles.length){
-                    vscode.window.showWarningMessage("No valid solidity source files found.");
-                    return;
-                }
-                progress.report({ increment: 10 });
-                let dotGraphs = {};
-                try {
-                    dotGraphs = metrics.getDotGraphs();
-                } catch (error) {
-                    console.log(error);
-                }
-                progress.report({ increment: 10 });
-                console.log("YO?")
-                metrics.generateReportMarkdown().then(markdown => {
-                    progress.report({ increment: 1 });
-                    previewHtml(webView, 
-                        new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
-                        markdown, 
-                        metrics.totals(),
-                        dotGraphs);
+    
+                    
                 });
-
-                
             });
-            
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('solidity-metrics.contextMenu.report', async (clickedFile, selectedFiles) => {
+        vscode.commands.registerCommand('solidity-metrics.contextMenu.report', async (clickedFileUri, selectedFiles) => {
 
-            let metrics = new SolidityMetricsContainer(vscode.workspace.name, {
-                basePath:vscode.workspace.rootPath + "/",
+            let selectedWorkspace = vscode.workspace.getWorkspaceFolder(clickedFileUri);
+
+            let metrics = new SolidityMetricsContainer(selectedWorkspace.name, {
+                basePath:selectedWorkspace.uri.fsPath + "/",
                 inputFileGlobExclusions:settings.extensionConfig().file.exclusions.glob,
                 inputFileGlob: undefined,
                 inputFileGlobLimit: settings.extensionConfig().file.limit,
                 debug:settings.extensionConfig().debug,
-                repoInfo: getWsGitInfo()
+                repoInfo: getWsGitInfo(selectedWorkspace.uri.fsPath)
             });
             metrics.inputFileGlob = "{" + selectedFiles.map(x => x.fsPath.endsWith(".sol") ? x.fsPath.replace(metrics.basePath,"") : x.fsPath.replace(metrics.basePath,"") + "/**/*.sol").join(",")  + "}";
 
@@ -368,7 +373,7 @@ function onActivate(context) {
 
                 metrics.generateReportMarkdown().then(markdown => {
                     previewHtml(webView, 
-                        new AnonymousDocument(vscode.workspace.name, vscode.workspace.name), 
+                        new AnonymousDocument(selectedWorkspace.name, selectedWorkspace.name), 
                         markdown, 
                         metrics.totals(),
                         dotGraphs);
