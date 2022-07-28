@@ -2,7 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
-    "version": "0.0.20",
+    "version": "0.0.21",
     "keywords": [
         "code",
         "metrics",
@@ -40,7 +40,7 @@
         "commands": [
             {
                 "command": "solidity-metrics.workspace.report",
-                "title": "Report metrics for workspace",
+                "title": "Report metrics for all open workspaces",
                 "category": "Solidity Metrics"
             },
             {
@@ -50,7 +50,7 @@
             },
             {
                 "command": "solidity-metrics.activeFile.exportHtml",
-                "title": "Export current metrics report",
+                "title": "Export This Metrics Report",
                 "category": "Solidity Metrics"
             },
             {
@@ -95,7 +95,7 @@
         "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'"
     },
     "dependencies": {
-        "solidity-code-metrics": "^0.0.19"
+        "solidity-code-metrics": "^0.0.22"
     },
     "devDependencies": {
         "webpack": "^5.43.0",

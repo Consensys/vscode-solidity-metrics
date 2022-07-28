@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.21
+- fix: support multi-workspace environments - #12
+- update: solidity-metrics / dependencies
+
 ## v0.0.20
 - update: solidity-metrics / new metrics
 
