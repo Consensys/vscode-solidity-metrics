@@ -90,11 +90,11 @@ function exportCurrentAsHtml(context, webView) {
 
     previewPanels.forEach(p => {
         let msgValue = p.getContextData();
-
+        let wsfolder = vscode.workspace.workspaceFolders.length > 0 ? vscode.workspace.workspaceFolders[0].uri.fsPath : ""
         //export report to workspace
 
         vscode.window.showSaveDialog({
-            defaultUri: vscode.Uri.file(path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, "solidity-metrics.html")),
+            defaultUri: vscode.Uri.file(path.join(wsfolder, "solidity-metrics.html")),
             saveLabel: "Export"
         }).then(fileUri => {
             if (!fileUri) {
@@ -168,14 +168,15 @@ function onActivate(context) {
 
             let document = vscode.window.activeTextEditor.document;
             let selectedWorkspace = vscode.workspace.getWorkspaceFolder(document.uri);
+            let wsPath = selectedWorkspace ? selectedWorkspace.uri.fsPath : path.dirname(document.uri.fsPath);
 
-            let metrics = new SolidityMetricsContainer(selectedWorkspace.name, {
-                basePath: selectedWorkspace.uri.fsPath + "/",
+            let metrics = new SolidityMetricsContainer(selectedWorkspace ? selectedWorkspace.name : vscode.workspace.name, {
+                basePath: wsPath + "/",
                 inputFileGlobExclusions: settings.extensionConfig().file.exclusions.glob,
                 inputFileGlob: undefined,
                 inputFileGlobLimit: settings.extensionConfig().file.limit,
                 debug: settings.extensionConfig().debug,
-                repoInfo: getWsGitInfo(selectedWorkspace.uri.fsPath)
+                repoInfo: getWsGitInfo(wsPath)
             });
             metrics.inputFileGlob = document.fileName.replace(metrics.basePath, "");
 
@@ -231,34 +232,43 @@ function onActivate(context) {
                         console.log("User canceled the long running operation");
                     });
 
-                    await vscode.workspace.findFiles(metrics.inputFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
-                        .then(uris => {
-                            uris.forEach(uri => {
-                                metrics.analyze(uri.fsPath);
-                                progress.report({ increment: 1 });
-                            });
+                    await vscode.workspace.findFiles(
+                        new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlob),
+                        new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlobExclusions),
+                        metrics.inputFileGlobLimit
+                    ).then(uris => {
+                        uris.forEach(uri => {
+                            metrics.analyze(uri.fsPath);
+                            progress.report({ increment: 1 });
                         });
+                    });
 
-                    await vscode.workspace.findFiles("**/truffle*.js", metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
-                        .then(uris => {
-                            uris.forEach(uri => {
-                                if (uri.fsPath.endsWith(".js")) {
-                                    metrics.addTruffleProjectLocation(uri.fsPath);
-                                    progress.report({ increment: 1 });
-                                }
-                            });
+                    await vscode.workspace.findFiles(
+                        new vscode.RelativePattern(selectedWorkspace, "**/truffle*.js"),
+                        new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlobExclusions),
+                        metrics.inputFileGlobLimit
+                    ).then(uris => {
+                        uris.forEach(uri => {
+                            if (uri.fsPath.endsWith(".js")) {
+                                metrics.addTruffleProjectLocation(uri.fsPath);
+                                progress.report({ increment: 1 });
+                            }
                         });
+                    });
 
                     // {**/node_modules,**/mock*,**/test*,**/migrations,**/Migrations.sol}
                     let excludeFilesGlobArray = metrics.inputFileGlobExclusions.replace("{", "").replace("}", "").split(",").map(g => g.endsWith(".sol") ? g : g + "/**/*.sol");
 
-                    await vscode.workspace.findFiles("{" + excludeFilesGlobArray.join(",") + "}", undefined, metrics.excludeFileGlobLimit)
-                        .then(uris => {
-                            uris.forEach(uri => {
-                                metrics.addExcludedFile(uri.fsPath);
-                                progress.report({ increment: 1 });
-                            });
+                    await vscode.workspace.findFiles(
+                        new vscode.RelativePattern(selectedWorkspace, "{" + excludeFilesGlobArray.join(",") + "}"),
+                        undefined,
+                        metrics.excludeFileGlobLimit
+                    ).then(uris => {
+                        uris.forEach(uri => {
+                            metrics.addExcludedFile(uri.fsPath);
+                            progress.report({ increment: 1 });
                         });
+                    });
 
                     if (!metrics.seenFiles.length) {
                         vscode.window.showWarningMessage("No valid solidity source files found.");
@@ -272,7 +282,6 @@ function onActivate(context) {
                         console.log(error);
                     }
                     progress.report({ increment: 10 });
-                    console.log("YO?")
                     metrics.generateReportMarkdown().then(markdown => {
                         progress.report({ increment: 1 });
                         previewHtml(webView,
@@ -291,18 +300,29 @@ function onActivate(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('solidity-metrics.contextMenu.report', async (clickedFileUri, selectedFiles) => {
 
+            if (!clickedFileUri) {
+                return;  // no file selected, skip 
+            }
             let selectedWorkspace = vscode.workspace.getWorkspaceFolder(clickedFileUri);
+            let wsPath = selectedWorkspace ? selectedWorkspace.uri.fsPath : fs.statSync(clickedFileUri.fsPath).isDirectory() ? clickedFileUri.fsPath : path.dirname(clickedFileUri.fsPath);
 
-            let metrics = new SolidityMetricsContainer(selectedWorkspace.name, {
-                basePath: selectedWorkspace.uri.fsPath + "/",
+            let metrics = new SolidityMetricsContainer(selectedWorkspace ? selectedWorkspace.name : vscode.workspace.name, {
+                basePath: wsPath + "/",
                 inputFileGlobExclusions: settings.extensionConfig().file.exclusions.glob,
                 inputFileGlob: undefined,
                 inputFileGlobLimit: settings.extensionConfig().file.limit,
                 debug: settings.extensionConfig().debug,
-                repoInfo: getWsGitInfo(selectedWorkspace.uri.fsPath)
+                repoInfo: getWsGitInfo(wsPath)
             });
-            metrics.inputFileGlob = "{" + selectedFiles.map(x => x.fsPath.endsWith(".sol") ? x.fsPath.replace(metrics.basePath, "") : x.fsPath.replace(metrics.basePath, "") + "/**/*.sol").join(",") + "}";
-
+            metrics.inputFileGlob = "{" + selectedFiles.map(x => {
+                if (x.fsPath.endsWith(".sol")) {
+                    return x.fsPath.replace(metrics.basePath, "");
+                }
+                else if (x.fsPath == wsPath || x.fsPath == metrics.basePath) {
+                    return "**/*.sol"; //special case: workspace selected
+                }
+                return x.fsPath.replace(metrics.basePath, "") + "/**/*.sol";
+            }).join(",") + "}";
 
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
@@ -314,7 +334,10 @@ function onActivate(context) {
                 });
 
                 //progress.report({ increment: 0 });
-                await vscode.workspace.findFiles(metrics.inputFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
+                await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlob),
+                    new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlobExclusions),
+                    metrics.inputFileGlobLimit)
                     .then(uris => {
                         uris.forEach(uri => {
                             metrics.analyze(uri.fsPath);
@@ -325,15 +348,19 @@ function onActivate(context) {
                 //discover truffle projects
                 let truffleFileGlob = "{" + selectedFiles.map(x => x.fsPath.endsWith(".sol") ? x.fsPath.replace(metrics.basePath, "") : x.fsPath.replace(metrics.basePath, "") + "/**/truffle*.js").join(",") + "}";
 
-                await vscode.workspace.findFiles(truffleFileGlob, metrics.inputFileGlobExclusions, metrics.inputFileGlobLimit)
-                    .then(uris => {
-                        uris.forEach(uri => {
-                            if (uri.fsPath.endsWith(".js")) {
-                                metrics.addTruffleProjectLocation(uri.fsPath);
-                                progress.report({ increment: 1 });
-                            }
-                        });
+
+                await vscode.workspace.findFiles(
+                    new vscode.RelativePattern(selectedWorkspace, truffleFileGlob),
+                    new vscode.RelativePattern(selectedWorkspace, metrics.inputFileGlobExclusions),
+                    metrics.inputFileGlobLimit
+                ).then(uris => {
+                    uris.forEach(uri => {
+                        if (uri.fsPath.endsWith(".js")) {
+                            metrics.addTruffleProjectLocation(uri.fsPath);
+                            progress.report({ increment: 1 });
+                        }
                     });
+                });
                 //list excluded files
 
                 // {**/node_modules,**/mock*,**/test*,**/migrations,**/Migrations.sol}
@@ -350,13 +377,16 @@ function onActivate(context) {
                     }
                 }
                 if (excludeFilesGlob.length) {
-                    await vscode.workspace.findFiles("{" + excludeFilesGlob.join(",") + "}", undefined, metrics.excludeFileGlobLimit)
-                        .then(uris => {
-                            uris.forEach(uri => {
-                                metrics.addExcludedFile(uri.fsPath);
-                                progress.report({ increment: 1 });
-                            });
+                    await vscode.workspace.findFiles(
+                        new vscode.RelativePattern(selectedWorkspace, "{" + excludeFilesGlob.join(",") + "}"),
+                        undefined,
+                        metrics.excludeFileGlobLimit
+                    ).then(uris => {
+                        uris.forEach(uri => {
+                            metrics.addExcludedFile(uri.fsPath);
+                            progress.report({ increment: 1 });
                         });
+                    });
                 }
 
                 if (!metrics.seenFiles.length) {
