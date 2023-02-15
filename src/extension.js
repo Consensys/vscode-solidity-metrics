@@ -144,7 +144,9 @@ function exportCurrentAsHtml(context, webView) {
         <script>
             let staticMetrics = ${JSON.stringify(msgValue)};
 
-            window.postMessage({"command":"renderReport", value:staticMetrics}, '*')
+            window.addEventListener('load', function() {
+                window.postMessage({"command":"renderReport", value:staticMetrics}, '*')
+            });
         </script>`;
 
             fs.writeFile(fileUri.fsPath, result.index.replace("<!--/*** %%static_metrics%% ***/-->", staticJsCss), function (err) {
