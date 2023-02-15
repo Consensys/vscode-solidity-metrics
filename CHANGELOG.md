@@ -1,6 +1,7 @@
 # Change Log
 
 ## v0.0.22
+- fix: pot. chrome render issue
 - update: solidity-metrics / bugfixes and dependencies
 
 ## v0.0.21
