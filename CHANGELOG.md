@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.23
+- update: dependencies (solidity-metrics)
+
 ## v0.0.22
 - fix: pot. chrome render issue
 - update: solidity-metrics / bugfixes and dependencies
