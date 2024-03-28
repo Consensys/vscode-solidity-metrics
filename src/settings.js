@@ -1,22 +1,22 @@
-'use strict';
-/** 
+"use strict";
+/**
  * @author github.com/tintinweb
  * @license MIT
- * 
- * 
+ *
+ *
  * */
 
-const vscode = require('vscode');
+const vscode = require("vscode");
 
 function extensionConfig() {
-    return vscode.workspace.getConfiguration('solidity-metrics');
+  return vscode.workspace.getConfiguration("solidity-metrics");
 }
 
 function extension() {
-    return vscode.extensions.getExtension('tintinweb.solidity-metrics');
+  return vscode.extensions.getExtension("tintinweb.solidity-metrics");
 }
 
 module.exports = {
-    extensionConfig: extensionConfig,
-    extension: extension,
+  extensionConfig: extensionConfig,
+  extension: extension,
 };

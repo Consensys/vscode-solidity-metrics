@@ -103,9 +103,11 @@
         }
     },
     "scripts": {
-        "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'"
+        "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'",
+        "format": "prettier --write \"src/**/*.{js,ts,json,css}\""
     },
     "dependencies": {
+        "prettier": "^3.2.5",
         "solidity-code-metrics": "^0.0.26"
     },
     "devDependencies": {
