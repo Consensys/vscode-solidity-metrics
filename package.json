@@ -34,7 +34,8 @@
         "onCommand:solidity-metrics.workspace.report",
         "onCommand:solidity-metrics.contextMenu.report",
         "onCommand:solidity-metrics.activeFile.report",
-        "onCommand:solidity-metrics.activeFile.exportHtml"
+        "onCommand:solidity-metrics.activeFile.exportHtml",
+        "onCommand:solidity-metrics.useScopeFile"
     ],
     "contributes": {
         "commands": [
@@ -57,6 +58,11 @@
                 "command": "solidity-metrics.contextMenu.report",
                 "title": "Solidity: Metrics",
                 "category": "Solidity Metrics"
+            },
+            {
+                "command": "solidity-metrics.useScopeFile",
+                "title": "Analyze Solidity Using Scope File",
+                "category": "Solidity Metrics"
             }
         ],
         "configuration": {
@@ -72,6 +78,11 @@
                     "type": "integer",
                     "default": 2000,
                     "description": "Maximum number of files to process in the workspace"
+                },
+                "solidity-metrics.scopefile.name": {
+                    "type": "string",
+                    "default": "scope.txt",
+                    "description": "Default scope file name"
                 }
             }
         },
@@ -92,13 +103,15 @@
         }
     },
     "scripts": {
-        "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'"
+        "build:web": "webpack --entry ./websrc/main.js -o ./content/ --mode='production'",
+        "format": "prettier --write \"src/**/*.{js,ts,json,css}\""
     },
     "dependencies": {
-        "solidity-code-metrics": "^0.0.25"
+        "solidity-code-metrics": "^0.0.27"
     },
     "devDependencies": {
-        "webpack": "^5.43.0",
+        "prettier": "^3.2.5",
+        "webpack": "^5.91.0",
         "webpack-cli": "^5.0.1"
     }
 }
