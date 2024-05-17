@@ -223,7 +223,8 @@ async function computeMetricsFromScopeFile(
     const patterns = fs
       .readFileSync(resolvedScopeFilePath, "utf-8")
       .split(/\r?\n/)
-      .filter(Boolean);
+      .filter(Boolean)
+      .map(p => path.resolve(p).replace(/^(\.?\/)/, "")); //replace "./" path prefix if present
 
     const wsPath = workspaceFolder.uri.fsPath + "/";
 
