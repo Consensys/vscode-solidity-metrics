@@ -14,6 +14,9 @@ The report can be exported from the editors title context menu or by executing `
 
 <img src=https://user-images.githubusercontent.com/2865694/81049773-20e50880-8ebf-11ea-88b9-9f4f9079e2c8.png height=300>
 
+Supports `scopefile.txt` format:
+
+<img src=https://github.com/Consensys/vscode-solidity-metrics/assets/2865694/4de84e65-83dc-46e0-8328-d913ab027d2c height=300>
 
 
 ## Credits
