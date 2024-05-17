@@ -1,5 +1,9 @@
 # Change Log
 
+## v0.0.24
+- update: dependencies (solidity-metrics) supports deployable contracts, scopefile
+- new: metrics report for scopefile - #23
+
 ## v0.0.23
 - update: dependencies (solidity-metrics)
 
