@@ -2,7 +2,7 @@
     "name": "solidity-metrics",
     "displayName": "Solidity Metrics",
     "description": "Solidity Metrics",
-    "version": "0.0.24",
+    "version": "0.0.25",
     "keywords": [
         "code",
         "metrics",
@@ -107,7 +107,7 @@
         "format": "prettier --write \"src/**/*.{js,ts,json,css}\""
     },
     "dependencies": {
-        "solidity-code-metrics": "^0.0.27"
+        "solidity-code-metrics": "^0.0.28"
     },
     "devDependencies": {
         "prettier": "^3.2.5",
