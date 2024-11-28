@@ -1,5 +1,8 @@
 # Change Log
 
+## v0.0.25
+- update: dependencies surya fixing sha1sums in mdreport
+
 ## v0.0.24
 - update: dependencies (solidity-metrics) supports deployable contracts, scopefile
 - new: metrics report for scopefile - #23
